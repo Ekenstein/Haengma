@@ -1,17 +1,30 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Haengma.SGF
 {
-    public class Property
+    public class SgfProperty
     {
         public string Identifier { get; }
         public IList<string> Values { get; } = new List<string>();
 
-        public Property(string identifier)
+        public SgfProperty(string identifier)
         {
+            if (string.IsNullOrWhiteSpace(identifier))
+            {
+                throw new ArgumentException("Identifier must not be null or white space.");
+            }
+
             Identifier = identifier;
+        }
+
+        public SgfProperty(string identifier, IEnumerable<string> values) : this(identifier)
+        {
+            foreach (var value in values)
+            {
+                Values.Add(value);
+            }
         }
 
         public override string ToString()

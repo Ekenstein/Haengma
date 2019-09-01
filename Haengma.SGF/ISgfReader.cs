@@ -6,8 +6,8 @@ namespace Haengma.SGF
     /// <summary>
     /// Represents an abstraction of an SGF parser.
     /// </summary>
-    public interface ISgfParser
+    public interface ISgfReader
     {
-        Collection Parse(TextReader reader);
+        Maybe<SgfCollection> Parse(TextReader reader);
     }
 }

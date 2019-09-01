@@ -22,16 +22,19 @@ namespace Haengma.SGF
             return Maybe.CreateNonEmpty(sb.ToString());
         }
 
-        public static Maybe<char> Peek(this TextReader reader, Func<char, bool> predicate) => Maybe
-            .Create(reader.Peek())
-            .Guard(v => v != EOF)
-            .Coalesce(v => (char)v)
-            .Guard(predicate);
+        public static Maybe<char> Peek(this TextReader reader, Func<char, bool> predicate)
+        {
+            return Maybe
+                .Create(reader.Peek())
+                .Guard(v => v != EOF)
+                .Coalesce(v => (char)v)
+                .Guard(predicate);
+        }
 
         public static Maybe<char> Read(this TextReader reader, Func<char, bool> predicate)
         {
             var peek = reader.Peek(predicate);
-            if (!peek.Guard(predicate).IsJust)
+            if (peek.IsNothing)
             {
                 return Maybe<char>.Nothing;
             }
