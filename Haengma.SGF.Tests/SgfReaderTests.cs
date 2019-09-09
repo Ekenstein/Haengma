@@ -1,7 +1,7 @@
-using Monadicsh;
-using Monadicsh.Extensions;
+using Haengma.SGF.Commons;
+using Haengma.SGF.ValueTypes;
+using System;
 using System.IO;
-using System.Linq;
 using Xunit;
 
 namespace Haengma.SGF.Tests
@@ -9,115 +9,214 @@ namespace Haengma.SGF.Tests
     public class SgfReaderTests
     {
         [Fact]
-        public void TestParseSgf()
+        public void TestDoubleNormal()
         {
-            var value = File.ReadAllText(@"C:\temp\zhy1378-Haengma.sgf");
-            var result = Parse(value);
-
-        }
-
-        [Fact]
-        public void TestParseText()
-        {
-            const string value = @"(;C[Meijin NR: yeah, k4 is won\
-derful
-sweat NR: thank you! :\)
-dada NR: yup. I like this move too. It's a move only to be expected from a pro. I really like it :)
-jansteen 4d: Can anyone\
- explain [me\] k4?])";
-
-            var result = Parse(value).GetValueOrDefault();
-        }
-
-        [Fact]
-        public void TestParseEmptyTree()
-        {
-            const string value = "()";
-            var result = Parse(value).GetValueOrDefault();
-            Assert.NotNull(result);
-            AssertCollection(result);
-            Assert.Single(result.GameTrees);
-        }
-
-        [Fact]
-        public void TestParseEmptyCollection()
-        {
-            const string value = "";
-            var result = Parse(value).GetValueOrDefault();
-            Assert.NotNull(result);
-            AssertCollection(result);
-            Assert.Empty(result.GameTrees);
-        }
-
-        [Fact]
-        public void TestParseSingleNode()
-        {
-            const string sgf = "(;A[b])";
-            var result = Parse(sgf).GetValueOrDefault();
-            Assert.NotNull(result);
-            AssertCollection(result);
-            Assert.Single(result.GameTrees);
-            Assert.All(result.GameTrees, gameTree =>
+            const string sgf = "(;A[1])";
+            var instance = new SgfReader();
+            instance.Config.Properties.Add("A", SgfValueType.Double);
+            var result = Parse(instance, sgf);
+            Assert.True(result.Success);
+            Assert.Single(result.Value.GameTrees);
+            AssertValueType(result.Value, property =>
             {
-                Assert.Single(gameTree.Sequence);
-                Assert.Empty(gameTree.GameTrees);
-                Assert.All(gameTree.Sequence, sequence => 
+                Assert.Equal("A", property.Identifier);
+                Assert.Single(property.Values);
+                Assert.All(property.Values, value =>
                 {
-                    Assert.Single(sequence.Properties);
-                    Assert.All(sequence.Properties, prop =>
-                    {
-                        Assert.Equal("A", prop.Identifier);
-                        Assert.Single(prop.Values);
-                        Assert.All(prop.Values, value =>
-                        {
-                            Assert.Equal("b", value);
-                        });
-                    });
+                    Assert.True(value is SgfDouble d && d.Value == "1");
                 });
             });
         }
 
         [Fact]
-        public void TestTwoEmptyTrees()
+        public void TestDoubleEmphasized()
         {
-            const string sgf = "()()";
-            var result = Parse(sgf).GetValueOrDefault();
-            Assert.Equal(2, result.GameTrees.Count());
-            Assert.All(result.GameTrees, gameTree =>
+            const string sgf = "(;A[2])";
+            var instance = new SgfReader();
+            instance.Config.Properties.Add("A", SgfValueType.Double);
+            var result = Parse(instance, sgf);
+            Assert.True(result.Success);
+            Assert.Single(result.Value.GameTrees);
+            AssertValueType(result.Value, property =>
             {
-                Assert.Empty(gameTree.Sequence);
-                Assert.Empty(gameTree.GameTrees);
+                Assert.Equal("A", property.Identifier);
+                Assert.Single(property.Values);
+                Assert.All(property.Values, value =>
+                {
+                    Assert.True(value is SgfDouble d && d.Value == "2");
+                });
             });
         }
 
-        private Maybe<SgfCollection> Parse(string s) => new PidginSgfReader().Parse(GetTextReader(s));
-
-        private TextReader GetTextReader(string s) => new StringReader(s);
-
-        private void AssertCollection(SgfCollection collection)
+        [Fact]
+        public void TestDoubleInvalid()
         {
-            Assert.NotNull(collection.GameTrees);
-            Assert.All(collection.GameTrees, AssertGameTree);
+            const string sgf = "(;A[0])";
+            var instance = new SgfReader();
+            instance.Config.Properties.Add("A", SgfValueType.Double);
+            var result = Parse(instance, sgf);
+            Assert.False(result.Success);
         }
 
-        private void AssertGameTree(SgfGameTree gameTree)
+        [Fact]
+        public void TestColorWhite()
         {
-            Assert.All(gameTree.GameTrees, AssertGameTree);
-            Assert.NotNull(gameTree.GameTrees);
-            Assert.NotNull(gameTree.Sequence);
-            Assert.All(gameTree.Sequence, AssertNode);
+            var instance = new SgfReader
+            { 
+                Config =
+                {
+                    Properties = { { "A", SgfValueType.Color } }
+                }
+            };
+
+            const string sgf = "(;A[W])";
+            var result = Parse(instance, sgf);
+            Assert.True(result.Success);
+            Assert.Single(result.Value.GameTrees);
+            AssertValueType(result.Value, prop =>
+            {
+                Assert.Single(prop.Values);
+                Assert.Equal("A", prop.Identifier);
+                Assert.All(prop.Values, value =>
+                {
+                    Assert.True(value is SgfColor color && color.Value == "W");
+                });
+            });
         }
 
-        private void AssertNode(SgfNode node)
+        [Fact]
+        public void TestColorBlack()
         {
-            Assert.NotNull(node.Properties);
-            Assert.All(node.Properties, AssertProperty);
+            var instance = new SgfReader
+            {
+                Config =
+                {
+                    Properties = { { "A", SgfValueType.Color } }
+                }
+            };
+
+            const string sgf = "(;A[B])";
+            var result = Parse(instance, sgf);
+            Assert.True(result.Success);
+            Assert.Single(result.Value.GameTrees);
+            AssertValueType(result.Value, prop =>
+            {
+                Assert.Single(prop.Values);
+                Assert.Equal("A", prop.Identifier);
+                Assert.All(prop.Values, value =>
+                {
+                    Assert.True(value is SgfColor color && color.Value == "B");
+                });
+            });
         }
 
-        private void AssertProperty(SgfProperty prop)
+        [Fact]
+        public void TestColorInvalid()
         {
-            Assert.NotNull(prop.Values);
-            Assert.NotNull(prop.Identifier);
+            var instance = new SgfReader
+            {
+                Config =
+                {
+                    Properties = { { "A", SgfValueType.Color } }
+                }
+            };
+
+            const string sgf = "(;A[BB])";
+            var result = Parse(instance, sgf);
+            Assert.False(result.Success);
+        }
+
+        [Fact]
+        public void TestNumber()
+        {
+            var instance = new SgfReader();
+            instance.Config.Properties.Add("A", SgfValueType.Number);
+            var result = Parse(instance, "(;A[+12])");
+            Assert.True(result.Success);
+            Assert.Single(result.Value.GameTrees);
+            AssertValueType(result.Value, "A", value =>
+            {
+                var number = value as SgfNumber;
+                Assert.NotNull(number);
+                Assert.True(number.Sign.IsJust);
+                Assert.Equal(NumberSign.Plus, number.Sign.Value);
+                Assert.Equal(12, number.Number);
+            });
+
+            result = Parse(instance, "(;A[-12])");
+            Assert.True(result.Success);
+            Assert.Single(result.Value.GameTrees);
+            AssertValueType(result.Value, "A", value =>
+            {
+                var number = value as SgfNumber;
+                Assert.NotNull(number);
+                Assert.True(number.Sign.IsJust);
+                Assert.Equal(NumberSign.Minus, number.Sign.Value);
+                Assert.Equal(12, number.Number);
+            });
+
+            result = Parse(instance, "(;A[12])");
+            Assert.True(result.Success);
+            Assert.Single(result.Value.GameTrees);
+            AssertValueType(result.Value, "A", value =>
+            {
+                var number = value as SgfNumber;
+                Assert.NotNull(number);
+                Assert.True(number.Sign.IsNothing);
+                Assert.Equal(12, number.Number);
+            });
+        }
+
+        [Fact]
+        public void TestInvalidNumber()
+        {
+            var instance = new SgfReader();
+            instance.Config.Properties.Add("A", SgfValueType.Number);
+            var result = Parse(instance, "(;A[dwa])");
+            Assert.False(result.Success);
+        }
+
+        [Fact]
+        public void TestReal()
+        {
+            var instance = new SgfReader();
+            instance.Config.Properties.Add("A", SgfValueType.Real);
+            var result = Parse(instance, "(;A[+12.5])");
+            Assert.True(result.Success);
+            Assert.Single(result.Value.GameTrees);
+        }
+
+        private Pidgin.Result<char, SgfCollection> Parse(SgfReader reader, string s) => reader.Parse(new StringReader(s));
+
+        private void AssertValueType(SgfCollection collection, UpperCaseLetterString identifier, Action<ISgfValue> assertion)
+        {
+            Assert.All(collection.GameTrees, gameTree =>
+            {
+                Assert.Single(gameTree.Sequence);
+                Assert.All(gameTree.Sequence, node =>
+                {
+                    Assert.Single(node.Properties);
+                    Assert.All(node.Properties, prop => 
+                    {
+                        Assert.Equal(identifier, prop.Identifier);
+                        Assert.Single(prop.Values);
+                        Assert.All(prop.Values, assertion);
+                    });
+                });
+            });
+        }
+
+        private void AssertValueType(SgfCollection collection, Action<SgfProperty> assertion)
+        {
+            Assert.All(collection.GameTrees, gameTree =>
+            {
+                Assert.Single(gameTree.Sequence);
+                Assert.All(gameTree.Sequence, node =>
+                {
+                    Assert.Single(node.Properties);
+                    Assert.All(node.Properties, assertion);
+                });
+            });
         }
     }
 }

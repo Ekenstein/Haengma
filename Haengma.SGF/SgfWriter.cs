@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace Haengma.SGF
 {
@@ -28,7 +25,7 @@ namespace Haengma.SGF
                     foreach (var value in property.Values)
                     {
                         writer.Write('[');
-                        writer.Write(value);
+                        writer.Write(value.Value);
                         writer.Write(']');
                     }
                 }

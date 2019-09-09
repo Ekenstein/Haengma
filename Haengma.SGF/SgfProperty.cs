@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Haengma.SGF.Commons;
+using Haengma.SGF.ValueTypes;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,10 +8,10 @@ namespace Haengma.SGF
 {
     public class SgfProperty
     {
-        public string Identifier { get; }
-        public IList<string> Values { get; } = new List<string>();
+        public UpperCaseLetterString Identifier { get; }
+        public IList<ISgfValue> Values { get; } = new List<ISgfValue>();
 
-        public SgfProperty(string identifier)
+        public SgfProperty(UpperCaseLetterString identifier)
         {
             if (string.IsNullOrWhiteSpace(identifier))
             {
@@ -19,7 +21,7 @@ namespace Haengma.SGF
             Identifier = identifier;
         }
 
-        public SgfProperty(string identifier, IEnumerable<string> values) : this(identifier)
+        public SgfProperty(UpperCaseLetterString identifier, IEnumerable<ISgfValue> values) : this(identifier)
         {
             foreach (var value in values)
             {
