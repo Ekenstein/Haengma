@@ -1,8 +1,11 @@
 using Haengma.SGF.Commons;
 using Haengma.SGF.ValueTypes;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Xunit;
+using static Haengma.SGF.SgfReader;
 
 namespace Haengma.SGF.Tests
 {
@@ -186,6 +189,16 @@ namespace Haengma.SGF.Tests
             Assert.Single(result.Value.GameTrees);
         }
 
+        [Fact]
+        public void TestText()
+        {
+            var instance = new SgfReader();
+            instance.Config.Properties.Add("A", SgfValueType.SimpleText(false));
+            var result = Parse(instance, "(;A[[Ekenstein\\]: Hur är det?])");
+            Assert.True(result.Success);
+            Assert.Single(result.Value.GameTrees);
+        }
+
         private Pidgin.Result<char, SgfCollection> Parse(SgfReader reader, string s) => reader.Parse(new StringReader(s));
 
         private void AssertValueType(SgfCollection collection, UpperCaseLetterString identifier, Action<ISgfValue> assertion)
@@ -217,6 +230,74 @@ namespace Haengma.SGF.Tests
                     Assert.All(node.Properties, assertion);
                 });
             });
+        }
+
+        [Theory, MemberData(nameof(Trees))]
+        public void Test(SgfReader parser, SgfCollection collection)
+        {
+            var writer = new SgfWriter();
+            var sgf = new StringBuilder();
+            var textWriter = new StringWriter(sgf);
+            writer.Write(textWriter, collection);
+
+            var reader = new StringReader(sgf.ToString());
+            var trees = parser.Parse(reader);
+        }
+
+        public static IEnumerable<object[]> Trees()
+        {
+            var random = new Random(328492);
+
+            for (var i = 0; i < 1000; i++)
+            {
+                var parser = new SgfReader();
+                var collection = new SgfCollection();
+                var gameTree = new SgfGameTree();
+                var numberOfNodes = random.Next();
+                for (var j = 0; j < numberOfNodes; j++)
+                {
+                    var node = new SgfNode();
+                    gameTree.Sequence.Add(node);
+                    var property = NextProperty(random, parser.Config);
+                    node.Properties.Add(property);
+                }
+
+                collection.GameTrees.Add(gameTree);
+                yield return new object[] { parser, collection };
+            }
+        }
+
+        private static SgfProperty NextProperty(Random random, SgfReaderConfiguration config)
+        {
+            UpperCaseLetterString identifier;
+            do
+            {
+                identifier = random.NextString(1, 2, RandomExtensions.UppercaseAlphabet);
+            } while (!config.Properties.ContainsKey(identifier));
+            
+            var value = NextValueType(random);
+            config.Properties.Add(identifier, value.Item1);
+
+            return new SgfProperty(identifier)
+            {
+                Values = { value.Item2 }
+            };
+        }
+
+        private static (SgfValueType, ISgfValue) NextValueType(Random random)
+        {
+            var values = new Func<Random, (SgfValueType, ISgfValue)>[]
+{
+                rng => (SgfValueType.Point, new SgfPoint(rng.Next(1, 20), rng.Next(1, 20))),
+                rng => (SgfValueType.Double, rng.NextBool() ? SgfDouble.Normal : SgfDouble.Emphasized),
+                rng => (SgfValueType.Color, rng.NextBool() ? SgfColor.Black : SgfColor.White),
+                rng => (SgfValueType.Number, new SgfNumber(random.NextNumberSign(), random.Next())),
+                rng => (SgfValueType.Real, new SgfReal(random.NextNumberSign(), (decimal)random.NextDouble())),
+                rng => (SgfValueType.Text(false), new SgfText(random.NextString(1, 20), false)),
+                rng => (SgfValueType.SimpleText(false), new SgfSimpleText(random.NextString(1, 20), false))
+            };
+
+            return random.Next(values)(random);
         }
     }
 }

@@ -1,15 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Haengma.SGF.Commons;
 
 namespace Haengma.SGF.ValueTypes
 {
     public class SgfText : ISgfValue, IEquatable<SgfText>
     {
-        public string Value { get; }
+        private static readonly char[] NeedsEscape = new [] { ']', '\\' };
 
-        public SgfText(string value)
+        private static readonly char[] NeedsEscapeWhenComposed = new [] { ':' }.Concat(NeedsEscape).ToArray();
+
+        private const char EscapeChar = '\\';
+
+        public string Text { get; }
+        public bool IsComposed { get; }
+
+        public virtual string Value => Text
+            .Replace(c => char.IsWhiteSpace(c) && c != '\n' && c != '\r', _ => ' ')
+            .AppendBefore(c => IsComposed 
+                ? NeedsEscapeWhenComposed.Contains(c) 
+                : NeedsEscape.Contains(c), 
+            _ => EscapeChar);
+
+        public SgfText(string value, bool isComposed)
         {
-            Value = value;
+            Text = value;
+            IsComposed = isComposed;
         }
 
         public override string ToString() => Value;

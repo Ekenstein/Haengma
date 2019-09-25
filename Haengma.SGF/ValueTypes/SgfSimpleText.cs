@@ -1,16 +1,15 @@
-﻿using System;
+﻿using Haengma.SGF.Commons;
+using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Haengma.SGF.ValueTypes
 {
-    public class SgfSimpleText : ISgfValue, IEquatable<SgfSimpleText>
+    public class SgfSimpleText : SgfText, IEquatable<SgfSimpleText>
     {
-        public string Value { get; }
+        public override string Value => base.Value.Replace(char.IsWhiteSpace, _ => ' ');
 
-        public SgfSimpleText(string s)
+        public SgfSimpleText(string s, bool isComposed) : base(s, isComposed)
         {
-            Value = s;
         }
 
         public override string ToString() => Value;
@@ -31,7 +30,7 @@ namespace Haengma.SGF.ValueTypes
             return -1937169414 + EqualityComparer<string>.Default.GetHashCode(Value);
         }
 
-        public bool Equals(ISgfValue other)
+        public new bool Equals(ISgfValue other)
         {
             return other is SgfSimpleText text && Equals(text);
         }
