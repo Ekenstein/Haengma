@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pidgin" Version="2.1.0" />
+    <PackageReference Include="Monadicsh" Version="1.0.0" />
+    <PackageReference Include="Pidgin" Version="2.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Haengma.SGF\Haengma.SGF.csproj" />
   </ItemGroup>
 
 </Project>

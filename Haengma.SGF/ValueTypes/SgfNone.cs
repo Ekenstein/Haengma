@@ -1,12 +1,9 @@
 ﻿namespace Haengma.SGF.ValueTypes
 {
-    public struct SgfNone : ISgfValue
+    public class SgfNone : SgfValue
     {
-        public string Value => string.Empty;
+        public SgfNone() { }
 
-        public bool Equals(ISgfValue other)
-        {
-            return other is SgfNone;
-        }
+        public override string Value => string.Empty;
     }
 }

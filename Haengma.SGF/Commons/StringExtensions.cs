@@ -1,6 +1,5 @@
-﻿using Monadicsh;
+﻿using Pidgin;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -22,7 +21,7 @@ namespace Haengma.SGF.Commons
                 do
                 {
                     var next = reader.Peek(predicate);
-                    if (next.IsJust)
+                    if (next.HasValue)
                     {
                         sb.Append(append(next.Value));
                     }
@@ -40,13 +39,13 @@ namespace Haengma.SGF.Commons
             var value = reader.Peek();
             if (value == -1)
             {
-                return Maybe<char>.Nothing;
+                return Maybe.Nothing<char>();
             }
 
             var c = (char)value;
             return predicate(c)
-                ? c
-                : Maybe<char>.Nothing;
+                ? Maybe.Just(c)
+                : Maybe.Nothing<char>();
         }
 
         private static bool IsEOF(this TextReader reader) => reader.Peek() == -1;

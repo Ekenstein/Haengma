@@ -22,10 +22,10 @@ namespace Haengma.SGF
                 foreach (var property in node.Properties)
                 {
                     writer.Write(property.Identifier);
-                    foreach (var value in property.Values)
+                    foreach (var value in property.Value)
                     {
                         writer.Write('[');
-                        writer.Write(value.Value);
+                        writer.Write(value);
                         writer.Write(']');
                     }
                 }

@@ -1,17 +1,16 @@
 ﻿using Haengma.SGF.Commons;
-using Haengma.SGF.ValueTypes;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Haengma.SGF
 {
     public class SgfProperty
     {
         public UpperCaseLetterString Identifier { get; }
-        public IList<ISgfValue> Values { get; } = new List<ISgfValue>();
+        public IList<SgfValue> Value { get; } = new List<SgfValue>();
 
-        public SgfProperty(UpperCaseLetterString identifier)
+        public SgfProperty(UpperCaseLetterString identifier, IEnumerable<SgfValue> value)
         {
             if (string.IsNullOrWhiteSpace(identifier))
             {
@@ -19,26 +18,13 @@ namespace Haengma.SGF
             }
 
             Identifier = identifier;
-        }
 
-        public SgfProperty(UpperCaseLetterString identifier, IEnumerable<ISgfValue> values) : this(identifier)
-        {
-            foreach (var value in values)
+            foreach (var v in value)
             {
-                Values.Add(value);
+                Value.Add(v);
             }
         }
 
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.Append(Identifier);
-            foreach (var value in Values)
-            {
-                sb.Append('[').Append(value).Append(']');
-            }
-
-            return sb.ToString();
-        }
+        public override string ToString() => $"{Identifier}{string.Join("", Value.Select(v => $"[{v}]"))}";
     }
 }

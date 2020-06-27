@@ -6,7 +6,7 @@ namespace Haengma.SGF
     {
         private class SgfPropertyEqualityComparer : IEqualityComparer<SgfProperty>
         {
-            public bool Equals(SgfProperty x, SgfProperty y)
+            public bool Equals(SgfProperty? x, SgfProperty? y)
             {
                 if (x == null) return false;
                 if (y == null) return false;
@@ -18,6 +18,8 @@ namespace Haengma.SGF
                 return obj?.Identifier?.GetHashCode() ?? 0;
             }
         }
+
+
 
         private static readonly IEqualityComparer<SgfProperty> PropertyComparer = new SgfPropertyEqualityComparer();
 
