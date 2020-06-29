@@ -22,9 +22,9 @@ namespace Haengma.SGF.ValueTypes
                 : NeedsEscape.Contains(c),
             _ => EscapeChar);
 
-        public SgfText(string value, bool isComposed)
+        public SgfText(string? value, bool isComposed)
         {
-            Text = value;
+            Text = value ?? string.Empty;
             IsComposed = isComposed;
         }
     }

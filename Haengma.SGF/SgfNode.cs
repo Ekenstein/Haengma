@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Haengma.SGF.Commons;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Haengma.SGF
 {
@@ -19,7 +21,20 @@ namespace Haengma.SGF
             }
         }
 
+        public IEnumerable<SgfValue> this[UpperCaseLetterString identifier]
+        {
+            get => Properties.Where(x => x.Identifier == identifier).SelectMany(x => x.Value);
+            set
+            {
+                var existingProperty = Properties.SingleOrDefault(x => x.Identifier == identifier);
+                if (existingProperty != null)
+                {
+                    Properties.Remove(existingProperty);
+                }
 
+                Properties.Add(new SgfProperty(identifier, value));
+            }
+        }
 
         private static readonly IEqualityComparer<SgfProperty> PropertyComparer = new SgfPropertyEqualityComparer();
 

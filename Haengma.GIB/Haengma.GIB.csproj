@@ -11,8 +11,4 @@
     <PackageReference Include="Pidgin" Version="2.5.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Haengma.SGF\Haengma.SGF.csproj" />
-  </ItemGroup>
-
 </Project>

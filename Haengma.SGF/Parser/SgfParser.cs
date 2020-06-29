@@ -1,6 +1,7 @@
 ﻿using Haengma.SGF.Commons;
 using Pidgin;
 using System.Collections.Generic;
+using System.Linq;
 using static Pidgin.Parser;
 using static Pidgin.Parser<char>;
 using PropertyParsers = System.Collections.Generic.IDictionary<Haengma.SGF.Commons.UpperCaseLetterString, Pidgin.Parser<char, Haengma.SGF.SgfValue>>;
@@ -37,7 +38,11 @@ namespace Haengma.SGF.Parser
             from sequence in Node(properties).Between(SkipWhitespaces).Many()
             from gameTrees in GameTree(properties).Between(SkipWhitespaces).Many()
             from end in Char(')')
-            select new SgfGameTree(gameTrees, sequence);
+            select new SgfGameTree
+            {
+                GameTrees = gameTrees.ToList(),
+                Sequence = sequence.ToList()
+            };
 
         private static Parser<char, SgfCollection> Collection(PropertyParsers properties) => GameTree(properties)
             .Between(SkipWhitespaces)

@@ -4,7 +4,7 @@ namespace Haengma.SGF.ValueTypes
 {
     public class SgfSimpleText : SgfText
     {
-        public SgfSimpleText(string s, bool isComposed) : base(s, isComposed)
+        public SgfSimpleText(string? s, bool isComposed) : base(s, isComposed)
         {
         }
 
