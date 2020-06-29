@@ -27,18 +27,74 @@ namespace Haengma.GIB
             .Where(x => x.Name == "GTIME")
             .Select(x => x.Value)
             .SelectMany(x => x.Split("-"))
+            .Where(x => int.TryParse(x, out var _))
             .Select(int.Parse)
             .ToArray();
 
-        public int MainTime => GetTimeParts()[0];
+        private int? GetTimePart(int part)
+        {
+            var parts = GetTimeParts();
+            if (parts.Length != 3)
+            {
+                return null;
+            }
 
-        public int ByoYomiPeriods => GetTimeParts()[2];
+            return parts[part];
+        }
 
-        public int ByoYomiTime => GetTimeParts()[1];
+        public int? TimeLimit => GetTimePart(0);
+
+        public (int periods, int timePerPeriod)? ByoYomi
+        {
+            get
+            {
+                var periods = GetTimePart(2);
+                if (periods == null)
+                {
+                    return default;
+                }
+
+                var timePerPeriod = GetTimePart(1);
+                if (timePerPeriod == null)
+                {
+                    return default;
+                }
+
+                return (periods.Value, timePerPeriod.Value);
+            }
+        }
 
         public string? BlackName => this["GAMEBLACKNICK"]
             .Select(x => x.Value)
             .SingleOrDefault();
+
+        private string? GetRank(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            var parts = value.Split(" ");
+            if (parts.Length != 2)
+            {
+                return null;
+            }
+
+            var rank = parts[1];
+            return rank[1..^1];
+        }
+
+        public string? BlackRank => this["GAMEBLACKNAME"]
+            .Select(x => x.Value)
+            .Select(GetRank)
+            .SingleOrDefault();
+
+        public string? WhiteRank => this["GAMEWHITENAME"]
+            .Select(x => x.Value)
+            .Select(GetRank)
+            .SingleOrDefault();
+            
 
         public string? WhiteName => this["GAMEWHITENICK"]
             .Select(x => x.Value)

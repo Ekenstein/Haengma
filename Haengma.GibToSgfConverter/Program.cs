@@ -73,7 +73,10 @@ namespace Haengma.GibToSgfConverter
                 .Concat(gib.GetKomi())
                 .Concat(gib.GetResult())
                 .Concat(gib.GetGamePlace())
-                .Concat(gib.GetGameDate());
+                .Concat(gib.GetGameDate())
+                .Concat(gib.GetTimeSettings())
+                .Concat(gib.GetBlackRank())
+                .Concat(gib.GetWhiteRank());
 
             return new SgfNode(properties);
         }

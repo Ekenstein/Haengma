@@ -18,6 +18,14 @@ namespace Haengma.GibToSgfConverter
             .CreateNonEmpty(file.WhiteName)
             .Map(new SgfProperty[0], x => new [] { new WhitePlayerName(x) });
 
+        public static IEnumerable<SgfProperty> GetBlackRank(this GibFile file) => Maybe
+            .CreateNonEmpty(file.BlackRank)
+            .Map(new SgfProperty[0], x => new [] { new BlackRank(x) });
+
+        public static IEnumerable<SgfProperty> GetWhiteRank(this GibFile file) => Maybe
+            .CreateNonEmpty(file.WhiteRank)
+            .Map(new SgfProperty[0], x => new [] { new WhiteRank(x) });
+
         public static IEnumerable<SgfProperty> GetResult(this GibFile file)
         {
             SgfProperty ToSgf(GibResult result) => result switch
@@ -54,6 +62,20 @@ namespace Haengma.GibToSgfConverter
             if (file.Date.HasValue)
             {
                 yield return new GameDate(file.Date.Value);
+            }
+        }
+
+        public static IEnumerable<SgfProperty> GetTimeSettings(this GibFile file)
+        {
+            if (file.TimeLimit.HasValue)
+            {
+                yield return new TimeLimit(file.TimeLimit.Value);
+            }
+
+            if (file.ByoYomi.HasValue)
+            {
+                var (periods, timePerPeriod) = file.ByoYomi.Value;
+                yield return OvertimeDescription.ByoYomi(periods, timePerPeriod);
             }
         }
     }
