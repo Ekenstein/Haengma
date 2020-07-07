@@ -38,11 +38,7 @@ namespace Haengma.SGF.Parser
             from sequence in Node(properties).Between(SkipWhitespaces).Many()
             from gameTrees in GameTree(properties).Between(SkipWhitespaces).Many()
             from end in Char(')')
-            select new SgfGameTree
-            {
-                GameTrees = gameTrees.ToList(),
-                Sequence = sequence.ToList()
-            };
+            select new SgfGameTree(sequence, gameTrees);
 
         private static Parser<char, SgfCollection> Collection(PropertyParsers properties) => GameTree(properties)
             .Between(SkipWhitespaces)

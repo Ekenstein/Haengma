@@ -6,7 +6,7 @@ namespace Haengma.SGF
     {
         public void Write(TextWriter writer, SgfCollection collection)
         {
-            foreach (var tree in collection.GameTrees)
+            foreach (var tree in collection)
             {
                 WriteGameTree(writer, tree);
             }
@@ -15,14 +15,14 @@ namespace Haengma.SGF
         private void WriteGameTree(TextWriter writer, SgfGameTree tree)
         {
             writer.Write('(');
-            foreach (var node in tree.Sequence)
+            foreach (var node in tree)
             {
                 writer.Write(';');
 
-                foreach (var property in node.Properties)
+                foreach (var property in node)
                 {
                     writer.Write(property.Identifier);
-                    foreach (var value in property.Value)
+                    foreach (var value in property)
                     {
                         writer.Write('[');
                         writer.Write(value);

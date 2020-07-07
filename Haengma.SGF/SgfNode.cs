@@ -1,10 +1,8 @@
-﻿using Haengma.SGF.Commons;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace Haengma.SGF
 {
-    public class SgfNode
+    public class SgfNode : HashSet<SgfProperty>
     {
         private class SgfPropertyEqualityComparer : IEqualityComparer<SgfProperty>
         {
@@ -21,35 +19,14 @@ namespace Haengma.SGF
             }
         }
 
-        public IEnumerable<SgfValue> this[UpperCaseLetterString identifier]
-        {
-            get => Properties.Where(x => x.Identifier == identifier).SelectMany(x => x.Value);
-            set
-            {
-                var existingProperty = Properties.SingleOrDefault(x => x.Identifier == identifier);
-                if (existingProperty != null)
-                {
-                    Properties.Remove(existingProperty);
-                }
-
-                Properties.Add(new SgfProperty(identifier, value));
-            }
-        }
-
         private static readonly IEqualityComparer<SgfProperty> PropertyComparer = new SgfPropertyEqualityComparer();
 
-        public SgfNode(IEnumerable<SgfProperty> properties)
+        public SgfNode(IEnumerable<SgfProperty> properties) : base(properties, PropertyComparer)
         {
-            foreach (var property in properties)
-            {
-                Properties.Add(property);
-            }
         }
 
-        public SgfNode() { }
+        public SgfNode() : this(new SgfProperty[0]) { }
 
-        public ISet<SgfProperty> Properties { get; } = new HashSet<SgfProperty>(PropertyComparer);
-
-        public override string ToString() => $";{string.Join(string.Empty, Properties)}";
+        public override string ToString() => $";{string.Join(string.Empty, this)}";
     }
 }

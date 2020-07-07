@@ -91,11 +91,8 @@ namespace Haengma.GibToSgfConverter
 
             static SgfNode ToNode(GibStone stone) => new SgfNode
             {
-                Properties =
-                {
-                    new ExecuteMove(ToColor(stone.Color), new SgfPoint(stone.Coordinates.x, stone.Coordinates.y)),
-                    new MoveNumber(stone.MoveNumber)
-                }
+                new ExecuteMove(ToColor(stone.Color), new SgfPoint(stone.Coordinates.x, stone.Coordinates.y)),
+                new MoveNumber(stone.MoveNumber)
             };
 
             return gib.Stones.Select(ToNode);
@@ -106,10 +103,7 @@ namespace Haengma.GibToSgfConverter
             var rootNode = GetRootNode(gib);
             var moveNodes = GetMoveNodes(gib);
 
-            return new SgfGameTree
-            {
-                Sequence = new[] { rootNode }.Concat(moveNodes).ToArray()
-            };
+            return new SgfGameTree(new[] { rootNode }.Concat(moveNodes));
         }
 
         private static FileStream? OpenFile(string? path)

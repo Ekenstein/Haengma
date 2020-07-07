@@ -2,14 +2,29 @@
 
 namespace Haengma.SGF
 {
-    public class SgfGameTree
+    public class SgfGameTree : List<SgfNode>
     {
-        public IList<SgfGameTree> GameTrees { get; set; } = new List<SgfGameTree>();
-        public IList<SgfNode> Sequence { get; set; } = new List<SgfNode>();
+        public IList<SgfGameTree> GameTrees { get; } = new List<SgfGameTree>();
+
+        public SgfGameTree()
+        {
+        }
+
+        public SgfGameTree(IEnumerable<SgfNode> sequence) : base(sequence)
+        {
+        }
+
+        public SgfGameTree(IEnumerable<SgfNode> sequence, IEnumerable<SgfGameTree> trees) : this(sequence)
+        {
+            foreach (var tree in trees)
+            {
+                GameTrees.Add(tree);
+            }
+        }
 
         public override string ToString()
         {
-            return $"({string.Join(string.Empty, Sequence)}{string.Join(string.Empty, GameTrees)})";
+            return $"({string.Join(string.Empty, this)}{string.Join(string.Empty, GameTrees)})";
         }
     }
 }

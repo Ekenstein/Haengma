@@ -6,26 +6,18 @@ namespace Haengma.SGF
     /// <summary>
     /// Represents a collection of zero or more game trees.
     /// </summary>
-    public class SgfCollection
+    public class SgfCollection : List<SgfGameTree>
     {
-        /// <summary>
-        /// A collection of zero or more <see cref="SgfGameTree"/>.
-        /// </summary>
-        public IList<SgfGameTree> GameTrees { get; } = new List<SgfGameTree>();
 
         public SgfCollection() { }
 
-        public SgfCollection(IEnumerable<SgfGameTree> trees)
+        public SgfCollection(IEnumerable<SgfGameTree> trees) : base(trees)
         {
-            foreach (var tree in trees)
-            {
-                GameTrees.Add(tree);
-            }
         }
 
         public override string ToString()
         {
-            return $"{string.Join(string.Empty, GameTrees.Select(gt => $"({gt})"))}";
+            return $"{string.Join(string.Empty, this.Select(gt => $"({gt})"))}";
         }
     }
 }

@@ -6,36 +6,27 @@ using System.Linq;
 
 namespace Haengma.SGF
 {
-    public class SgfProperty
+    public class SgfProperty : List<SgfValue>
     {
         [NotNull]
         public UpperCaseLetterString Identifier { get; }
-        
-        [NotNull]
-        public IList<SgfValue> Value { get; } = new List<SgfValue>();
+
+        public SgfProperty(UpperCaseLetterString identifier) : this(identifier, new SgfValue[0])
+        {
+        }
 
         public SgfProperty(UpperCaseLetterString identifier, SgfValue value) : this(identifier, new [] { value }) { }
 
-        public SgfProperty(UpperCaseLetterString identifier, IEnumerable<SgfValue> value)
+        public SgfProperty(UpperCaseLetterString identifier, IEnumerable<SgfValue> value) : base(value)
         {
             if (string.IsNullOrWhiteSpace(identifier))
             {
                 throw new ArgumentException("Identifier must not be null or white space.");
             }
 
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
             Identifier = identifier;
-
-            foreach (var v in value)
-            {
-                Value.Add(v);
-            }
         }
 
-        public override string ToString() => $"{Identifier}{string.Join("", Value.Select(v => $"[{v}]"))}";
+        public override string ToString() => $"{Identifier}{string.Join("", this.Select(v => $"[{v}]").DefaultIfEmpty("[]"))}";
     }
 }
