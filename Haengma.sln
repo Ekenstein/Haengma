@@ -3,13 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Haengma.SGF", "Haengma.SGF\Haengma.SGF.csproj", "{97CC6F8C-2444-4DF9-90C3-311DE8DDD396}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Haengma.SGF.Tests", "Haengma.SGF.Tests\Haengma.SGF.Tests.csproj", "{73F3E969-5038-4824-8C00-F7306AA061A1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Haengma.GTP", "Haengma.GTP\Haengma.GTP.csproj", "{162B6328-ECC2-4F2C-9491-DBB47106A779}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Haengma.GS", "Haengma.GS\Haengma.GS.csproj", "{D4B4F451-8E6A-422F-814C-840EA1D43360}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Haengma.GIB", "Haengma.GIB\Haengma.GIB.csproj", "{E9E8583A-2BCB-469B-9B35-9BA8FD9F8788}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Haengma.GibToSgfConverter", "Haengma.GibToSgfConverter\Haengma.GibToSgfConverter.csproj", "{31107FD2-8391-4A1E-948B-48182E84BF4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Haengma.Backend", "Haengma.Backend\Haengma.Backend.csproj", "{FE1D27AB-874E-4A4F-88D1-733BBE2E72CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,22 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{97CC6F8C-2444-4DF9-90C3-311DE8DDD396}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{97CC6F8C-2444-4DF9-90C3-311DE8DDD396}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{97CC6F8C-2444-4DF9-90C3-311DE8DDD396}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{97CC6F8C-2444-4DF9-90C3-311DE8DDD396}.Release|Any CPU.Build.0 = Release|Any CPU
-		{162B6328-ECC2-4F2C-9491-DBB47106A779}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{162B6328-ECC2-4F2C-9491-DBB47106A779}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{162B6328-ECC2-4F2C-9491-DBB47106A779}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{162B6328-ECC2-4F2C-9491-DBB47106A779}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E9E8583A-2BCB-469B-9B35-9BA8FD9F8788}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E9E8583A-2BCB-469B-9B35-9BA8FD9F8788}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E9E8583A-2BCB-469B-9B35-9BA8FD9F8788}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E9E8583A-2BCB-469B-9B35-9BA8FD9F8788}.Release|Any CPU.Build.0 = Release|Any CPU
-		{31107FD2-8391-4A1E-948B-48182E84BF4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{31107FD2-8391-4A1E-948B-48182E84BF4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{31107FD2-8391-4A1E-948B-48182E84BF4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{31107FD2-8391-4A1E-948B-48182E84BF4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73F3E969-5038-4824-8C00-F7306AA061A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73F3E969-5038-4824-8C00-F7306AA061A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73F3E969-5038-4824-8C00-F7306AA061A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73F3E969-5038-4824-8C00-F7306AA061A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4B4F451-8E6A-422F-814C-840EA1D43360}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4B4F451-8E6A-422F-814C-840EA1D43360}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4B4F451-8E6A-422F-814C-840EA1D43360}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4B4F451-8E6A-422F-814C-840EA1D43360}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE1D27AB-874E-4A4F-88D1-733BBE2E72CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE1D27AB-874E-4A4F-88D1-733BBE2E72CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE1D27AB-874E-4A4F-88D1-733BBE2E72CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE1D27AB-874E-4A4F-88D1-733BBE2E72CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
