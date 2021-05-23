@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Features>strict</Features>
+    <nullable>enable</nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Update="JsonColor.cs">
+      <Generator>DtsGenerator</Generator>
+      <LastGenOutput>JsonColor.cs.d.ts</LastGenOutput>
+    </Compile>
+    <Compile Update="JsonGameSettings.cs">
+      <Generator>DtsGenerator</Generator>
+      <LastGenOutput>JsonGameSettings.cs.d.ts</LastGenOutput>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="JsonColor.cs.d.ts">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>JsonColor.cs</DependentUpon>
+    </None>
+    <None Update="JsonGameSettings.cs.d.ts">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>JsonGameSettings.cs</DependentUpon>
+    </None>
+  </ItemGroup>
+
+</Project>

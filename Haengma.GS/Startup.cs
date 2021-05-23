@@ -1,18 +1,27 @@
-using Haengma.Backend.Imperative.Exceptions;
-using Haengma.Backend.Imperative.Persistance;
-using Haengma.Backend.Imperative.Services;
+using Haengma.Core;
+using Haengma.Core.Logics;
+using Haengma.Core.Logics.Games;
+using Haengma.Core.Logics.Lobby;
+using Haengma.Core.Models;
+using Haengma.Core.Persistence;
+using Haengma.Core.Services;
 using Haengma.GS.Actions;
+using Haengma.GS.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json.Converters;
+using shortid.Configuration;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net;
 using System.Text.Json.Serialization;
 
@@ -34,30 +43,75 @@ namespace Haengma.GS
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
 
-            services.AddDbContext<HaengmaContext>(options => {
+            services.AddSignalR();
+
+            services.AddDbContext<HaengmaContext>(options =>
+            {
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection"),
                     o => o.MigrationsAssembly("Haengma.GS")
                 );
             });
 
-            services.AddScoped<ITransactionFactory>(provider => {
-                return new TransactionFactory<HaengmaContext>(() => provider.GetService<HaengmaContext>()!);
+            services.AddScoped<IIdGenerator<string>>(provider => new ShortIdGenerator(new GenerationOptions()));
+            services.AddScoped<ITransactionFactory>(provider => new TransactionFactory(() =>
+            {
+                return provider.GetRequiredService<HaengmaContext>();
+            }));
+
+            services.AddScoped(provider =>
+            {
+                var idGenerator = provider.GetRequiredService<IIdGenerator<string>>();
+                var transactions = provider.GetRequiredService<ITransactionFactory>();
+                var logger = provider.GetRequiredService<ILogger<ServiceContext>>();
+                var logics = provider.GetRequiredService<LogicContext>();
+                
+                return new ServiceContext(
+                    transactions,
+                    logics,
+                    logger,
+                    idGenerator
+                );
             });
 
-            services.AddScoped(provider => {
-                var transactions = provider.GetService<ITransactionFactory>();
-                return new ServiceContext(transactions!);
+            services.AddSingleton(provider =>
+            {
+                var lobbyState = new LobbyState(
+                    new HashSet<UserId>(),
+                    new ConcurrentDictionary<UserId, OpenGameState>(),
+                    new ConcurrentDictionary<GameId, Game>()
+                );
+
+                var idGenerator = provider.GetRequiredService<IIdGenerator<string>>();
+                var hub = provider.GetRequiredService<IHubContext<GameHub, IGameClient>>();
+                var gameNotifier = new GameNotifier(hub);
+                var lobbyNotifier = new LobbyNotifier(hub);
+                
+                return new LogicContext(
+                    lobbyState,
+                    new ConcurrentDictionary<GameId, GameState>(),
+                    lobbyNotifier,
+                    gameNotifier,
+                    idGenerator,
+                    new Random()
+                );
             });
-            services.AddScoped(provider => {
-                var services = provider.GetService<ServiceContext>();
-                return new ActionContext(services!);
+
+            services.AddScoped(provider =>
+            {
+                var services = provider.GetRequiredService<ServiceContext>();
+                return new ActionContext(services);
             });
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Haengma.GS", Version = "v1" });
             });
+
+            services.AddCors(o => o.AddPolicy("HaengmaPolicy", builder =>
+            {
+                builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+            }));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -80,7 +134,7 @@ namespace Haengma.GS
                     var (statusCode, message) = exception switch
                     {
                         ArgumentException => (HttpStatusCode.BadRequest, exception.Message),
-                        ResourceNotFoundException => (HttpStatusCode.NotFound, exception.Message),
+                        NoSuchEntityException => (HttpStatusCode.NotFound, exception.Message),
                         _ => (HttpStatusCode.InternalServerError, "Oops")
                     };
 
@@ -95,9 +149,12 @@ namespace Haengma.GS
 
             app.UseAuthorization();
 
+            app.UseCors("HaengmaPolicy");
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<GameHub>("/hub/game");
             });
         }
     }

@@ -1,43 +1,31 @@
-﻿using Haengma.Backend.Functional.Sgf;
-using Haengma.Backend.Imperative.Models;
-using Haengma.Backend.Imperative.Services;
-using Haengma.Backend.Utils;
+﻿using Haengma.Core.Services;
 using Haengma.GS.Models;
-using Microsoft.AspNetCore.Mvc;
-using System;
+using System.Threading.Tasks;
 
 namespace Haengma.GS.Actions
 {
     public static class GameActions
     {
-        public static ActionResult<Guid> PostNewGame(this ActionContext actionContext, 
-            JsonPostGameOptions options)
-        {
-            var id = actionContext.Services.NewGame(options.ToModel());
-            return new OkObjectResult(id.Id);
-        }
+        public static Task AddMoveAsync(this ActionContext context, string gameId, string connectionId, JsonPoint point) => context.Services.AddMoveAsync(
+            gameId: new(gameId), 
+            userId: new(connectionId), 
+            point: point.ToModel()
+        );
 
-        public static IActionResult PostPlayMove(this ActionContext actionContext, 
-            Guid id, 
-            JsonPostMove move)
-        {
-            var color = move.Color.ToModel();
-            var gameId = new GameId(id);
-            actionContext.Services.PlayMove(gameId,
-                color,
-                move.ToMove());
+        public static Task PassAsync(this ActionContext context, string gameId, string connectionId) => context.Services.PassAsync(
+            gameId: new(gameId), 
+            userId: new(connectionId)
+        );
 
-            return new OkResult();
-        }
+        public static Task ResignAsync(this ActionContext context, string gameId, string connectionId) => context.Services.ResignAsync(
+            gameId: new(gameId),
+            userId: new(connectionId)
+        );
 
-        public static ActionResult<JsonGame> GetGame(this ActionContext actionContext, Guid gameId) => actionContext
-            .Services
-            .GetGame(new GameId(gameId))
-            .Map(x => new OkObjectResult(x.ToJson()));
-
-        public static ActionResult<string> GetPrintGame(this ActionContext actionContext, Guid gameId) => actionContext
-            .Services
-            .PrintGame(new GameId(gameId))
-            .Map(x => new OkObjectResult(x));
+        public static Task CommentAsync(this ActionContext context, string gameId, string connectionId, string comment) => context.Services.AddCommentAsync(
+            gameId: new(gameId),
+            userId: new(connectionId),
+            comment: comment
+        );
     }
 }

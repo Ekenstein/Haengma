@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Features>strict</Features>
+    <nullable>enable</nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Haengma.Core.Models\Haengma.Core.Models.csproj" />
+    <ProjectReference Include="..\Haengma.Core.Persistence\Haengma.Core.Persistence.csproj" />
+    <ProjectReference Include="..\Haengma.Core.Sgf\Haengma.Core.Sgf.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.5" />
+  </ItemGroup>
+
+</Project>
