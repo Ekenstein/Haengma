@@ -3,8 +3,6 @@ using Haengma.GS.Models;
 using Microsoft.AspNetCore.SignalR.Client;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 

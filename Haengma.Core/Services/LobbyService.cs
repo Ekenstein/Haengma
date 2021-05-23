@@ -1,5 +1,4 @@
-﻿using Haengma.Core.Logics.Lobby;
-using Haengma.Core.Models;
+﻿using Haengma.Core.Models;
 using Pidgin;
 using System;
 using System.Threading.Tasks;

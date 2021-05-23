@@ -1,7 +1,4 @@
-using Haengma.Backend.Functional.Sgf;
-using Haengma.Backend.Utils;
 using Xunit;
-using static Haengma.Backend.Functional.Sgf.SgfProperty;
 
 namespace Haengma.SGF.Tests
 {

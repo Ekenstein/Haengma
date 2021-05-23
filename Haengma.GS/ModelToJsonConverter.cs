@@ -25,9 +25,9 @@ namespace Haengma.GS
         };
 
         public static JsonGameSettings ToJson(this GameSettings gameSettings) => new(
-            gameSettings.BoardSize, 
-            gameSettings.Komi, 
-            gameSettings.Handicap, 
+            gameSettings.BoardSize,
+            gameSettings.Komi,
+            gameSettings.Handicap,
             gameSettings.TimeSettings.ToJson(),
             gameSettings.ColorDecision.ToJson()
         );

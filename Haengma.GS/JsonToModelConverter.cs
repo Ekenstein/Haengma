@@ -45,7 +45,8 @@ namespace Haengma.GS
 
         public static Rank ToModel(this JsonRank rank) => rank.RankType switch
         {
-            JsonRankType.Kyu => new Kyu {
+            JsonRankType.Kyu => new Kyu
+            {
                 Value = rank.Rank
             },
             JsonRankType.Dan => new Dan

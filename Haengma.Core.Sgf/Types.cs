@@ -6,9 +6,9 @@ namespace Haengma.Core.Sgf
 {
     public enum SgfColor { Black, White }
     public enum SgfSign { Plus, Minus }
-    
+
     public sealed record Point(int X, int Y);
-    
+
     public abstract record Move
     {
         public sealed record Point(int X, int Y) : Move;
@@ -34,8 +34,8 @@ namespace Haengma.Core.Sgf
         public static SgfNode Empty => new(Set.Empty<SgfProperty>());
     }
 
-    public sealed record SgfGameTree(IReadOnlyList<SgfNode> Sequence, IReadOnlyList<SgfGameTree> Trees) 
-    { 
+    public sealed record SgfGameTree(IReadOnlyList<SgfNode> Sequence, IReadOnlyList<SgfGameTree> Trees)
+    {
         public static readonly SgfGameTree Empty = new(List.Empty<SgfNode>(), List.Empty<SgfGameTree>());
     }
 }

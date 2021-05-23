@@ -6,9 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace Haengma.Tests
 {
@@ -60,10 +58,10 @@ namespace Haengma.Tests
             return arguments.OfType<T>().SingleOrDefault();
         }
 
-        private static async Task VerifyWithTimeoutAsync(this Mock<IGameClient> gameClient, 
-            Expression<Func<IGameClient, Task>> method, 
-            Times times, 
-            int timeOutInMs = 100, 
+        private static async Task VerifyWithTimeoutAsync(this Mock<IGameClient> gameClient,
+            Expression<Func<IGameClient, Task>> method,
+            Times times,
+            int timeOutInMs = 100,
             int delayBetweenIterationInMs = 20,
             string failMessage = "Failed to verify")
         {

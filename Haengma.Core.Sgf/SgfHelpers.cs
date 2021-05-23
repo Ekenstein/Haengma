@@ -13,7 +13,7 @@ namespace Haengma.Core.Sgf
             _ => SgfColor.Black
         };
 
-        public static SgfNode AsNode(this SgfProperty property) => new (Set.Of(property));
+        public static SgfNode AsNode(this SgfProperty property) => new(Set.Of(property));
 
         public static SgfGameTree AppendNode(this SgfGameTree tree, SgfNode node) => tree with
         {

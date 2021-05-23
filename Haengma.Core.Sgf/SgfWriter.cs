@@ -45,7 +45,7 @@ namespace Haengma.Core.Sgf
 
         private static string EscapeChar(char c, bool isComposed)
         {
-            var needsEscape = new [] { ']', '\\' }.Union(new [] { ':' }.Where(_ => isComposed));
+            var needsEscape = new[] { ']', '\\' }.Union(new[] { ':' }.Where(_ => isComposed));
             return needsEscape.Contains(c)
                 ? $"\\{c}"
                 : c.ToString();
@@ -82,7 +82,7 @@ namespace Haengma.Core.Sgf
                 if (n > 26)
                 {
                     return (char)((n % 27) + 'A');
-                } 
+                }
                 else
                 {
                     return (char)((n - 1) + 'a');
@@ -110,8 +110,8 @@ namespace Haengma.Core.Sgf
 
         private class SgfPropertyToSgf : ISgfPropertyVisitor<string>
         {
-            private static string ToSgf(string identifier, params string[] values) 
-            { 
+            private static string ToSgf(string identifier, params string[] values)
+            {
                 var sb = new StringBuilder();
                 sb.Append(identifier);
                 if (values == null || values.Length <= 0)
@@ -154,7 +154,7 @@ namespace Haengma.Core.Sgf
             public string Accept(SgfProperty.PL pL) => ToSgf("PL", pL.Color.ToSgf());
 
             public string Accept(SgfProperty.AP aP) => ToSgf(
-                "AP", 
+                "AP",
                 aP.Application.ToSgf(
                     l => l.SimpleTextToSgf(true),
                     r => r.SimpleTextToSgf(true)));

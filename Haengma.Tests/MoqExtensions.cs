@@ -1,8 +1,5 @@
-﻿using Haengma.GS.Hubs;
-using Haengma.GS.Models;
-using Moq;
+﻿using Moq;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -47,7 +44,7 @@ namespace Haengma.Tests
             }
         }
 
-        public static Task VerifyAsync<T>(this Mock<Action<T>> handler, T expected, Times times, int timeOutInMs = 1000) => VerifyWithTimeoutAsync(handler, x => x(expected), times , timeOutInMs);
+        public static Task VerifyAsync<T>(this Mock<Action<T>> handler, T expected, Times times, int timeOutInMs = 1000) => VerifyWithTimeoutAsync(handler, x => x(expected), times, timeOutInMs);
         public static Task VerifyAsync<T>(this Mock<Action<T>> handler, Times times, int timeOutInMs = 1000) => VerifyWithTimeoutAsync(handler, x => x(It.IsAny<T>()), times, timeOutInMs);
 
         public static async Task<T> VerifyAndGetValueAsync<T>(this Mock<Action<T>> handler, Times times, int timeOutInMs = 1000)

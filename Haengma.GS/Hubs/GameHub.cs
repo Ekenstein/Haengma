@@ -3,7 +3,6 @@ using Haengma.GS.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.SignalR;
-using System;
 using System.Threading.Tasks;
 
 namespace Haengma.GS.Hubs
@@ -23,7 +22,7 @@ namespace Haengma.GS.Hubs
         public Task Pass(string gameId) => _actionContext.PassAsync(gameId, Context.ConnectionId);
         public Task Resign(string gameId) => _actionContext.ResignAsync(gameId, Context.ConnectionId);
         public Task Comment(string gameId, string message) => _actionContext.CommentAsync(gameId, Context.ConnectionId, message);
-        
+
         public async Task CreateGame(JsonGameSettings gameSettings)
         {
             var gameId = _actionContext.CreateGame(Context.ConnectionId, gameSettings);

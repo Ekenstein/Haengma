@@ -76,7 +76,8 @@ namespace Haengma.Core.Persistence
         {
             var game = await transaction.GameById(id).SingleOrDefaultAsync() ?? throw new NoSuchEntityException(id);
 
-            transaction.Update(game with {
+            transaction.Update(game with
+            {
                 Sgf = sgf
             });
         }

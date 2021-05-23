@@ -39,7 +39,8 @@ namespace Haengma.GS
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddJsonOptions(options => {
+            services.AddControllers().AddJsonOptions(options =>
+            {
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
 
@@ -65,7 +66,7 @@ namespace Haengma.GS
                 var transactions = provider.GetRequiredService<ITransactionFactory>();
                 var logger = provider.GetRequiredService<ILogger<ServiceContext>>();
                 var logics = provider.GetRequiredService<LogicContext>();
-                
+
                 return new ServiceContext(
                     transactions,
                     logics,
@@ -86,7 +87,7 @@ namespace Haengma.GS
                 var hub = provider.GetRequiredService<IHubContext<GameHub, IGameClient>>();
                 var gameNotifier = new GameNotifier(hub);
                 var lobbyNotifier = new LobbyNotifier(hub);
-                
+
                 return new LogicContext(
                     lobbyState,
                     new ConcurrentDictionary<GameId, GameState>(),

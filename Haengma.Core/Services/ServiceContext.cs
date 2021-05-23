@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Haengma.Core.Services
 {
-    public record ServiceContext(ITransactionFactory Transactions, 
-        LogicContext Logics, 
+    public record ServiceContext(ITransactionFactory Transactions,
+        LogicContext Logics,
         ILogger Logger,
         IIdGenerator<string> IdGenerator);
 }

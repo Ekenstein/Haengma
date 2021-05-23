@@ -1,8 +1,5 @@
-﻿using Haengma.Backend.Functional.Sgf;
-using Haengma.Backend.Utils;
-using System.Linq;
+﻿using System.Linq;
 using Xunit;
-using static Haengma.Backend.Functional.Sgf.SgfProperty;
 
 namespace Haengma.SGF.Tests
 {
@@ -84,11 +81,11 @@ namespace Haengma.SGF.Tests
                 new Point(x, y - 1),
                 new Point(x, y + 1)
             );
-            
+
             var ponnuki = Ponnuki(4, 4);
 
             var tree = ponnuki.Aggregate(
-                SgfGameTree.Empty.PlayMove(Color.Black, new Move.Point(4, 4), 19), 
+                SgfGameTree.Empty.PlayMove(Color.Black, new Move.Point(4, 4), 19),
                 (tree, move) => tree.PlayMove(Color.White, new Move.Point(move.X, move.Y), 19).PlayMove(Color.Black, new Move.Pass(), 19)
             );
 

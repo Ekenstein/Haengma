@@ -39,7 +39,7 @@ namespace Haengma.GS
             var tasks = userId.Select(x => _hubContext.Groups.AddToGroupAsync(x.Value, gameId.Value));
             return Task.WhenAll(tasks);
         }
-        
+
         public Task PlayerPassedAsync(GameId gameId, Color color) => _hubContext.Clients.Group(gameId.Value).PlayerPassed(color.ToJson());
 
         public Task PlayerResignedAsync(GameId gameId, Color color) => _hubContext.Clients.Group(gameId.Value).PlayerResigned(color.ToJson());

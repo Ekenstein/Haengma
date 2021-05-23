@@ -13,8 +13,8 @@ namespace Haengma.Tests
 
         public static JsonGameSettings CreateGame(
             JsonTimeSettings timeSettings = null,
-            int boardSize = 19, 
-            double komi = 6.5, 
+            int boardSize = 19,
+            double komi = 6.5,
             int handicap = 0,
             JsonPlayerDecision playerDecision = JsonPlayerDecision.Nigiri
         ) => new(

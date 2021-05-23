@@ -7,7 +7,8 @@ using static Haengma.Core.Sgf.SgfProperty;
 
 namespace Haengma.Core.Sgf
 {
-    public record GoBoard(Set<Stone> Stones, Map<SgfColor, int> Captures, int BoardSize) { 
+    public record GoBoard(Set<Stone> Stones, Map<SgfColor, int> Captures, int BoardSize)
+    {
         public static GoBoard Empty(int boardSize) => new(Set.Empty<Stone>(), Map.Of((SgfColor.Black, 0), (SgfColor.White, 0)), boardSize);
 
         public bool IsOccupied(Point point) => Stones.Any(x => x.Point == point);
@@ -78,7 +79,7 @@ namespace Haengma.Core.Sgf
             .DefaultIfEmpty(SgfColor.Black)
             .LastOrDefault() == color;
 
-        public static SgfColor NextTurn(this SgfGameTree tree) => tree.HasTurn(SgfColor.Black) ? SgfColor.Black : SgfColor.White; 
+        public static SgfColor NextTurn(this SgfGameTree tree) => tree.HasTurn(SgfColor.Black) ? SgfColor.Black : SgfColor.White;
 
         public static bool IsBoardEmpty(this SgfGameTree tree) => !tree.GetStones().Any();
 
@@ -112,7 +113,7 @@ namespace Haengma.Core.Sgf
             }
 
             var maxHandicap = GetMaxHandicap(boardSize);
-            if (handicap < 2 || handicap > maxHandicap) 
+            if (handicap < 2 || handicap > maxHandicap)
             {
                 throw new SgfException($"Handicap must be larger than or equal to 2 and less than or equal to {maxHandicap}.");
             }
@@ -211,7 +212,7 @@ namespace Haengma.Core.Sgf
             new Point(point.X, point.Y + 1)
         ).Where(x => x.X >= 1 && x.X <= boardSize && x.Y >= 1 && x.Y <= boardSize).ToSet();
 
-        private static (Set<Stone> group, int liberties) GetLiberties(this GoBoard board, 
+        private static (Set<Stone> group, int liberties) GetLiberties(this GoBoard board,
             Stone stone)
         {
             Map<Stone, int> Liberties(Map<Stone, int> currentGroup, Stone stone)
@@ -236,8 +237,10 @@ namespace Haengma.Core.Sgf
 
         public static GoBoard GetBoard(this SgfGameTree tree, int boardSize) => tree
             .GetStones()
-            .Aggregate(GoBoard.Empty(boardSize), (board, stone) => {
-                var newBoard = board with {
+            .Aggregate(GoBoard.Empty(boardSize), (board, stone) =>
+            {
+                var newBoard = board with
+                {
                     Stones = board.Stones + Set.Of(stone)
                 };
 
@@ -295,7 +298,8 @@ namespace Haengma.Core.Sgf
 
             return getHandicap(handicap, edgeDistance.Value, boardSize);
 
-            static Set<Point> getHandicap(int handicap, int edgeDistance, int boardSize) => handicap switch {
+            static Set<Point> getHandicap(int handicap, int edgeDistance, int boardSize) => handicap switch
+            {
                 2 => Set.Of(
                     new Point(edgeDistance, boardSize - edgeDistance + 1),
                     new Point(boardSize - edgeDistance + 1, edgeDistance)

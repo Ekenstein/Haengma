@@ -7,13 +7,13 @@ namespace Haengma.GS.Actions
     public static class GameActions
     {
         public static Task AddMoveAsync(this ActionContext context, string gameId, string connectionId, JsonPoint point) => context.Services.AddMoveAsync(
-            gameId: new(gameId), 
-            userId: new(connectionId), 
+            gameId: new(gameId),
+            userId: new(connectionId),
             point: point.ToModel()
         );
 
         public static Task PassAsync(this ActionContext context, string gameId, string connectionId) => context.Services.PassAsync(
-            gameId: new(gameId), 
+            gameId: new(gameId),
             userId: new(connectionId)
         );
 

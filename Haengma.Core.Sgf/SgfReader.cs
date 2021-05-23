@@ -1,12 +1,12 @@
-﻿using Pidgin;
-using static Pidgin.Parser;
-using static Pidgin.Parser<char>;
+﻿using Haengma.Core.Utils;
+using Pidgin;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
 using static Haengma.Core.Sgf.SgfProperty;
-using Haengma.Core.Utils;
+using static Pidgin.Parser;
+using static Pidgin.Parser<char>;
 
 namespace Haengma.Core.Sgf
 {
@@ -87,9 +87,9 @@ namespace Haengma.Core.Sgf
 
         private static Parser<char, (SgfSign? sign, double number)> Real { get; } =
              (from number in Number
-             from decimals in Decimals
-             let value = number.number + (decimals?.Map(d => d / 10) ?? 0.0)
-             select (number.sign, value))
+              from decimals in Decimals
+              let value = number.number + (decimals?.Map(d => d / 10) ?? 0.0)
+              select (number.sign, value))
             .Labelled("Real");
 
         private static Parser<char, (L, R)> Composed<L, R>(Parser<char, L> p1, Parser<char, R> p2) =>

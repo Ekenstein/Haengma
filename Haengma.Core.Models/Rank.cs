@@ -28,9 +28,9 @@ namespace Haengma.Core.Models
         {
             private int _value;
 
-            public override int Value 
-            { 
-                get => _value; 
+            public override int Value
+            {
+                get => _value;
                 init
                 {
                     if (value > 30 || value < 1)
