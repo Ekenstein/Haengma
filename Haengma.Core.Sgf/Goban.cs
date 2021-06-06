@@ -50,14 +50,14 @@ namespace Haengma.Core.Sgf
     {
         public static int? GetBoardSize(this SgfGameTree tree) => tree.RootNode()?.FindProperty<SZ>()?.Size;
         public static double? GetKomi(this SgfGameTree tree) => tree.RootNode()?.FindProperty<KM>()?.Komi;
-        public static string? GetBlackPlayerName(this SgfGameTree tree) => tree.RootNode()?.FindProperty<PB>()?.Name;
-        public static string? GetWhitePlayerName(this SgfGameTree tree) => tree.RootNode()?.FindProperty<PW>()?.Name;
+        public static SgfSimpleText? GetBlackPlayerName(this SgfGameTree tree) => tree.RootNode()?.FindProperty<PB>()?.Name;
+        public static SgfSimpleText? GetWhitePlayerName(this SgfGameTree tree) => tree.RootNode()?.FindProperty<PW>()?.Name;
         public static SgfGameTree SetBoardSize(this SgfGameTree tree, int boardSize) => tree.AddRootProperty(new SZ(boardSize));
         public static SgfGameTree SetKomi(this SgfGameTree tree, double komi) => tree.AddRootProperty(new KM(komi));
-        public static SgfGameTree SetBlackPlayerName(this SgfGameTree tree, string name) => tree.AddRootProperty(new PB(name));
-        public static SgfGameTree SetWhitePlayerName(this SgfGameTree tree, string name) => tree.AddRootProperty(new PW(name));
-        public static SgfGameTree SetBlackPlayerRank(this SgfGameTree tree, string rank) => tree.AddRootProperty(new BR(rank));
-        public static SgfGameTree SetWhitePlayerRank(this SgfGameTree tree, string rank) => tree.AddRootProperty(new WR(rank));
+        public static SgfGameTree SetBlackPlayerName(this SgfGameTree tree, SgfSimpleText name) => tree.AddRootProperty(new PB(name));
+        public static SgfGameTree SetWhitePlayerName(this SgfGameTree tree, SgfSimpleText name) => tree.AddRootProperty(new PW(name));
+        public static SgfGameTree SetBlackPlayerRank(this SgfGameTree tree, SgfSimpleText rank) => tree.AddRootProperty(new BR(rank));
+        public static SgfGameTree SetWhitePlayerRank(this SgfGameTree tree, SgfSimpleText rank) => tree.AddRootProperty(new WR(rank));
         public static int? GetHandicap(this SgfGameTree tree) => tree.RootNode()?.FindProperty<HA>()?.Handicap;
         public static bool HasGameEnded(this SgfGameTree tree) => tree.RootNode()?.FindProperty<RE>() != null || tree.HasTwoConsecutivePasses();
         public static SgfGameTree SetTurn(this SgfGameTree tree, SgfColor color) => tree.AppendNode(new PL(color).AsNode());
@@ -91,10 +91,10 @@ namespace Haengma.Core.Sgf
 
         public static SgfGameTree AddComment(this SgfGameTree tree, string comment)
         {
-            C AddComment() => new(comment);
+            C AddComment() => new(SgfText.FromString(comment));
             C UpdateComment(C property) => property with
             {
-                Comment = property.Comment + "\n" + comment
+                Comment = property.Comment.AppendLine(SgfText.FromString(comment))
             };
 
             return tree.AddOrUpdatePropertyOnLastNode(
@@ -118,7 +118,7 @@ namespace Haengma.Core.Sgf
 
             return tree
                 .AddRootProperty(new HA(handicap))
-                .AddRootProperty(new AB(GetHandicapPoints(boardSize, handicap)));
+                .AddRootProperty(new AB(GetHandicapPoints(boardSize, handicap).ToNonEmptySet()));
         }
 
         public static SgfGameTree Resign(this SgfGameTree tree, SgfColor color)
@@ -130,8 +130,8 @@ namespace Haengma.Core.Sgf
 
             var result = color switch
             {
-                SgfColor.Black => "W+R",
-                _ => "B+R"
+                SgfColor.Black => new SgfSimpleText("W+R"),
+                _ => new SgfSimpleText("B+R")
             };
 
             return tree.AddRootProperty(new RE(result));

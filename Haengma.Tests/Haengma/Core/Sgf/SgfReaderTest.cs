@@ -1,12 +1,10 @@
 ﻿using Haengma.Core.Sgf;
-using Pidgin;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using Xunit;
 using static Haengma.Core.Sgf.SgfProperty;
 using static Haengma.Core.Utils.Collections;
 using static Xunit.Assert;
+using static Haengma.Tests.SgfAssert;
 
 namespace Haengma.Tests.Haengma.Core.Sgf
 {
@@ -17,7 +15,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = "(;B[aa])";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<B>(result, sgf, x =>
+            AssertSingleSgfProperty<B>(result, sgf, x =>
             {
                 var point = x.Move as Move.Point;
                 NotNull(point);
@@ -30,7 +28,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = "(;B[AZ])";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<B>(result, sgf, x =>
+            AssertSingleSgfProperty<B>(result, sgf, x =>
             {
                 var point = x.Move as Move.Point;
                 NotNull(point);
@@ -43,7 +41,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = "(;B[])";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<B>(result, sgf, x => NotNull(x.Move as Move.Pass));
+            AssertSingleSgfProperty<B>(result, sgf, x => NotNull(x.Move as Move.Pass));
         }
 
         [Fact]
@@ -51,7 +49,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = "(;W[aa])";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<W>(result, sgf, x =>
+            AssertSingleSgfProperty<W>(result, sgf, x =>
             {
                 var point = x.Move as Move.Point;
                 NotNull(point);
@@ -64,7 +62,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = "(;W[])";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<W>(result, sgf, x => NotNull(x.Move as Move.Pass));
+            AssertSingleSgfProperty<W>(result, sgf, x => NotNull(x.Move as Move.Pass));
         }
 
         [Fact]
@@ -72,7 +70,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = "(;SZ[19])";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<SZ>(result, sgf, x => Equal(19, x.Size));
+            AssertSingleSgfProperty<SZ>(result, sgf, x => Equal(19, x.Size));
         }
 
         [Fact]
@@ -80,7 +78,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = "(;KM[6.5])";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<KM>(result, sgf, x => Equal(6.5, x.Komi));
+            AssertSingleSgfProperty<KM>(result, sgf, x => Equal(6.5, x.Komi));
         }
 
         [Fact]
@@ -88,7 +86,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = "(;KM[4])";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<KM>(result, sgf, x => Equal(4, x.Komi));
+            AssertSingleSgfProperty<KM>(result, sgf, x => Equal(4, x.Komi));
         }
 
         [Fact]
@@ -96,7 +94,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = "(;PL[W])";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<PL>(result, sgf, x => Equal(SgfColor.White, x.Color));
+            AssertSingleSgfProperty<PL>(result, sgf, x => Equal(SgfColor.White, x.Color));
         }
 
         [Fact]
@@ -104,7 +102,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = "(;PL[B])";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<PL>(result, sgf, x => Equal(SgfColor.Black, x.Color));
+            AssertSingleSgfProperty<PL>(result, sgf, x => Equal(SgfColor.Black, x.Color));
         }
 
         [Fact]
@@ -120,7 +118,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = "(;HA[19])";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<HA>(result, sgf, x => Equal(19, x.Handicap));
+            AssertSingleSgfProperty<HA>(result, sgf, x => Equal(19, x.Handicap));
         }
 
         [Fact]
@@ -128,7 +126,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = "(;UNKNOWN[hej])";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<Unknown>(result, sgf, x =>
+            AssertSingleSgfProperty<Unknown>(result, sgf, x =>
             {
                 Equal("UNKNOWN", x.Identifier);
                 Single(x.Values);
@@ -141,10 +139,10 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = "(;UNKNOWN[:])";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<Unknown>(result, sgf, x =>
+            AssertSingleSgfProperty<Unknown>(result, sgf, x =>
             {
                 Equal("UNKNOWN", x.Identifier);
-                Equal(ListOf(":"), x.Values);
+                Equal(ListOf(new SgfText(":")), x.Values);
             });
         }
 
@@ -153,27 +151,11 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = "(;UNKNOWN[apa\\:n:bepa])";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<Unknown>(result, sgf, x =>
+            AssertSingleSgfProperty<Unknown>(result, sgf, x =>
             {
                 Equal("UNKNOWN", x.Identifier);
-                Equal(ListOf("apa:n:bepa"), x.Values);
+                Equal(ListOf(new SgfText("apa:n:bepa")), x.Values);
             });
-        }
-
-        [Fact]
-        public void ListProperties_AB_EmptyList_SgfProperty_NoValues()
-        {
-            var sgf = "(;AB[])";
-            var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<AB>(result, sgf, x => Empty(x.Stones));
-        }
-
-        [Fact]
-        public void ListProperties_AW_EmptyList_SgfProperty_NoValues()
-        {
-            var sgf = "(;AW[])";
-            var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<AW>(result, sgf, x => Empty(x.Stones));
         }
 
         [Fact]
@@ -181,7 +163,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = " (   \t;   AW\t\n   [  \taa  ]\n  )";
             var result = SgfReader.Parse(sgf);
-            AssertSingleProperty<AW>(result, sgf, x => Equal(SetOf(new Point(1, 1)), x.Stones));
+            AssertSingleSgfProperty<AW>(result, sgf, x => Equal(SetOf(new Point(1, 1)), x.Stones));
         }
 
         [Theory]
@@ -190,10 +172,10 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = SgfWriter.ToSgf(collection);
             var result = SgfReader.Parse(sgf);
-            if (!result.Success)
+            ParseSuccess(result, sgf, x =>
             {
-                True(false, $"Failed to parse '{sgf}', message was '{result.Error.RenderErrorMessage()}'");
-            }
+                Equal(collection, x, Fixture.CollectionComparer);
+            });
 
             var actualSgf = SgfWriter.ToSgf(result.Value);
             Equal(sgf, actualSgf);
@@ -205,30 +187,6 @@ namespace Haengma.Tests.Haengma.Core.Sgf
             {
                 yield return new object[] { Fixture.NextSgfCollection() };
             }
-        }
-
-        private static void AssertSingleProperty<T>(
-            Result<char, IReadOnlyList<SgfGameTree>> result,
-            string sgf,
-            Action<T> assert = null
-        ) where T : SgfProperty
-        {
-            if (!result.Success)
-            {
-                True(false, $"Expected the SGF '{sgf}' to be valid. The message was '{result.Error.RenderErrorMessage()}'");
-            }
-            var collection = result.Value;
-            Single(collection);
-            All(collection, tree => {
-                Single(tree.Sequence);
-                All(tree.Sequence, node =>
-                {
-                    Single(node.Properties);
-                    var property = node.FindProperty<T>();
-                    NotNull(property);
-                    assert?.Invoke(property!);
-                });
-            });
         }
     }
 }

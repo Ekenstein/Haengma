@@ -33,6 +33,14 @@ namespace Haengma.Core.Utils
 
         public static IReadOnlyList<T> Subsequence<T>(this IReadOnlyList<T> ts, int startIndex, int length) => ts.Skip(startIndex).Take(length).ToArray();
         public static bool IsSingle<T>(this IReadOnlyList<T> ts) => ts.Count == 1;
+
+        public static string JoinToString<T>(this IEnumerable<T> ts, 
+            string separator, 
+            Func<T, string> block
+        ) => string.Join(separator, ts.Select(block));
+
+        public static string JoinToString<T>(this IEnumerable<T> ts, string separator) => ts
+            .JoinToString(separator, x => x?.ToString() ?? string.Empty);
     }
 
     public static class List

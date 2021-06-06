@@ -36,9 +36,7 @@ namespace Haengma.Core.Sgf
             .Labelled("property identifier");
 
         private static Parser<char, IEnumerable<T>> PropertyValues<T>(Parser<char, T> parser) => 
-            Try(parser.Between(Char('['), Char(']')).Many())
-            .Or(String("[]").Select(_ => Enumerable.Empty<T>()))
-            .Labelled("property value");
+            parser.Between(Char('['), Char(']')).Many().Labelled("property value");
 
         private static Parser<char, T> PropertyValue<T>(Parser<char, T> parser) => PropertyValues(parser)
             .Assert(x => x.Count() == 1)
@@ -71,16 +69,22 @@ namespace Haengma.Core.Sgf
             .Select(ns => string.Join(string.Empty, ns))
             .Select(int.Parse);
 
-        private static Parser<char, string> SimpleText(bool isComposed) => Whitespace
+        private static Parser<char, SgfSimpleText> SimpleText(bool isComposed) => Whitespace
             .ThenReturn(' ')
             .Or(NormalChar(isComposed))
             .Or(EscapedChar(isComposed))
             .ManyString()
+            .Select(x => new SgfSimpleText(x))
             .Labelled("SimpleText");
 
-        private static Parser<char, string> Text(bool isComposed) => NormalChar(isComposed)
+        private static readonly char[] LegalWhitespacesInText = new [] { '\n', ' ', '\r' };
+
+        private static Parser<char, SgfText> Text(bool isComposed) => Token(x => char.IsWhiteSpace(x) && !LegalWhitespacesInText.Contains(x))
+            .ThenReturn(' ')
+            .Or(NormalChar(isComposed))
             .Or(EscapedChar(isComposed))
             .ManyString()
+            .Select(x => new SgfText(x))
             .Labelled("Text");
 
         private static Parser<char, SgfColor> Color => OneOf(Char('B'), Char('W')).Select(x => x switch
@@ -104,19 +108,20 @@ namespace Haengma.Core.Sgf
             "C" => PropertyValue(Text(false)).Select<SgfProperty>(x => new C(x)).Labelled("C"),
             "PB" => PropertyValue(SimpleText(false)).Select<SgfProperty>(x => new PB(x)).Labelled("PB"),
             "PW" => PropertyValue(SimpleText(false)).Select<SgfProperty>(x => new PW(x)).Labelled("PW"),
-            "AB" => PropertyValues(Point).Select<SgfProperty>(x => new AB(x.ToSet())).Labelled("AB"),
-            "AW" => PropertyValues(Point).Select<SgfProperty>(x => new AW(x.ToSet())).Labelled("AW"),
+            "AB" => PropertyValues(Point).Select<SgfProperty>(x => new AB(x.ToNonEmptySet())).Labelled("AB"),
+            "AW" => PropertyValues(Point).Select<SgfProperty>(x => new AW(x.ToNonEmptySet())).Labelled("AW"),
             "SZ" => PropertyValue(Int).Select<SgfProperty>(x => new SZ(x)).Labelled("SZ"),
             "HA" => PropertyValue(Int).Select<SgfProperty>(x => new HA(x)).Labelled("HA"),
             "MN" => PropertyValue(Int).Select<SgfProperty>(x => new MN(x)).Labelled("MN"),
-            "AP" => PropertyValue(Composed(SimpleText(true), SimpleText(true))).Select<SgfProperty>(x => new AP(x)).Labelled("AP"),
+            "AP" => PropertyValue(Composed(SimpleText(true), SimpleText(true))).Select<SgfProperty>(x => new AP(x.Item1, x.Item2)).Labelled("AP"),
             "KM" => PropertyValue(Real).Select<SgfProperty>(x => new KM(x)).Labelled("KM"),
             "RE" => PropertyValue(SimpleText(false)).Select<SgfProperty>(x => new RE(x)).Labelled("RE"),
             "BR" => PropertyValue(SimpleText(false)).Select<SgfProperty>(x => new BR(x)).Labelled("BR"),
             "WR" => PropertyValue(SimpleText(false)).Select<SgfProperty>(x => new WR(x)).Labelled("WR"),
             "PL" => PropertyValue(Color).Select<SgfProperty>(x => new PL(x)).Labelled("PL"),
             "EM" => PropertyValue(Composed(Color, Int)).Select<SgfProperty>(x => new Emote(x.Item1, (SgfEmote)x.Item2)).Labelled("Emote"),
-            _ => PropertyValues(Text(false)).Select<SgfProperty>(x => new Unknown(identifier, x.ToArray()))
+            "OT" => PropertyValue(SimpleText(false)).Select<SgfProperty>(x => new OT(x)).Labelled("OT"),
+            _ => PropertyValues(Text(false)).Select<SgfProperty>(x => new Unknown(identifier, x.ToNonEmptyList()))
         };
 
         private static Parser<char, SgfProperty> Property =>

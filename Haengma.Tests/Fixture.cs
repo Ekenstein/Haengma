@@ -33,20 +33,56 @@ namespace Haengma.Tests
 
         private static bool AreEquals(IReadOnlyList<SgfGameTree> x, IReadOnlyList<SgfGameTree> y)
         {
+            if (x.Count != y.Count) 
+            {
+                return false;
+            }
             return x.SequenceEqual(y, GameTreeComparer);
         }
 
         private static bool AreEquals(SgfGameTree x, SgfGameTree y)
         {
-            return x.Sequence.SequenceEqual(y.Sequence, NodeComparer) && x.Trees.SequenceEqual(y.Trees, GameTreeComparer);
+            if (x.Sequence.Count != y.Sequence.Count) 
+            {
+                return false;
+            } 
+            if (x.Trees.Count != y.Trees.Count) 
+            {
+                return false;
+            } 
+            if (!x.Sequence.SequenceEqual(y.Sequence, NodeComparer))
+            {
+                return false;
+            }
+
+            if (!x.Trees.SequenceEqual(y.Trees, GameTreeComparer)) 
+            {
+                return false;
+            } 
+            return true;
         }
 
-        private static bool AreEquals(SgfNode x, SgfNode y) => x.Properties.SequenceEqual(y.Properties, PropertyComparer);
+        private static bool AreEquals(SgfNode x, SgfNode y)
+        {
+            if (x.Properties.Count != y.Properties.Count) 
+            {
+                return false;
+            }
+            return x.Properties.SequenceEqual(y.Properties, PropertyComparer);
+        }
 
         private static bool AreEquals(SgfProperty x, SgfProperty y)
         {
-            if (ReferenceEquals(x, y)) return true;
-            if (x.Type != y.Type) return false;
+            if (ReferenceEquals(x, y))
+            {
+                return true;
+            }
+
+            if (x.Type != y.Type)
+            {
+                return false;
+            }
+
             return x.Accept(new SgfPropertyEqualsVisitor(y));
         }
 
@@ -68,7 +104,6 @@ namespace Haengma.Tests
                 {
                     var i = 0;
                 }
-
                 return result;
             }
 
@@ -82,9 +117,9 @@ namespace Haengma.Tests
 
             public bool Accept(PW pW) => CheckEquality<PW>(x => x.Name == pW.Name);
 
-            public bool Accept(AB aB) => CheckEquality<AB>(x => x.Stones.SequenceEqual(aB.Stones));
+            public bool Accept(AB aB) => CheckEquality<AB>(x => x.Stones.SetEquals(aB.Stones));
 
-            public bool Accept(AW aW) => CheckEquality<AW>(x => x.Stones.SequenceEqual(aW.Stones));
+            public bool Accept(AW aW) => CheckEquality<AW>(x => x.Stones.SetEquals(aW.Stones));
 
             public bool Accept(SZ sZ) => CheckEquality<SZ>(x => x.Size == sZ.Size);
 
@@ -97,7 +132,7 @@ namespace Haengma.Tests
             public bool Accept(PL pL) => CheckEquality<PL>(x => x.Color == pL.Color);
             public bool Accept(AP aP) => CheckEquality<AP>(x =>
             {
-                return x.Application.name == aP.Application.name && x.Application.version == aP.Application.version;
+                return x.Name == aP.Name && x.Version == aP.Version;
             });
 
             public bool Accept(Unknown unknown) => CheckEquality<Unknown>(x => 
@@ -172,31 +207,43 @@ namespace Haengma.Tests
         {
             rng => new B(NextMove(rng)),
             rng => new W(NextMove(rng)),
-            rng => new C(rng.NextString()),
-            rng => new PB(rng.NextString()),
-            rng => new PW(rng.NextString()),
-            rng => new AB(rng.NextCollection(NextPoint).ToSet()),
-            rng => new AW(rng.NextCollection(NextPoint).ToSet()),
+            rng => new C(NextText(rng)),
+            rng => new PB(NextSimpleText(rng)),
+            rng => new PW(NextSimpleText(rng)),
+            rng => new AB(rng.NextCollection(NextPoint, minSize: 1).ToNonEmptySet()),
+            rng => new AW(rng.NextCollection(NextPoint, minSize: 1).ToNonEmptySet()),
             rng => new SZ(rng.Next()),
             rng => new HA(rng.Next()),
             rng => new MN(rng.Next()),
             rng => new KM(rng.NextDouble()),
             rng => new PL(NextColor(rng)),
-            rng => new AP((rng.NextString(), rng.NextString())),
-            rng => new BR(rng.NextString()),
-            rng => new WR(rng.NextString()),
-            rng => new OT(rng.NextString()),
-            rng => new RE(rng.NextString()), 
+            rng => new AP(NextSimpleText(rng), NextSimpleText(rng)),
+            rng => new BR(NextSimpleText(rng)),
+            rng => new WR(NextSimpleText(rng)),
+            rng => new OT(NextSimpleText(rng)),
+            rng => new RE(NextSimpleText(rng)), 
             rng => new Emote(NextColor(rng), rng.Next(Enum.GetValues<SgfEmote>())),
             rng => new Unknown(
                 rng.NextString(UCLetters, minLength: 3), 
-                rng.NextCollection(x => x.NextString(), maxSize: 4)
+                rng.NextCollection(NextText, minSize: 1, maxSize: 4).ToNonEmptyList()
             )
         };
 
         private static SgfProperty NextSgfProperty(Random random) => random.Next(PropertyGenerators).Invoke(random);
 
         private static SgfColor NextColor(Random random) => random.Next(new [] { SgfColor.Black, SgfColor.White });
+        
+        private static SgfText NextText(Random random) => random
+            .NextString(
+                alphabet: UCLetters + LCLetters + SpecialChars + Digits + "\r\r\r\r\r\n\n\n\n\n      "
+            )
+            .Let(x => new SgfText(x));
+
+        private static SgfSimpleText NextSimpleText(Random random) => random
+            .NextString(
+                alphabet: UCLetters + LCLetters + SpecialChars + Digits + "            "
+            )
+            .Let(x => new SgfSimpleText(x));
 
         private static Point NextPoint(Random random) => new(random.Next(1, 52), random.Next(1, 52));
 

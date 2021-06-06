@@ -8,6 +8,10 @@ namespace Haengma.Core.Utils
 {
     public static class Collections
     {
+        public static NonEmptyReadOnlyList<T> NonEmptyListOf<T>(T head, params T[] tail) => new(head, tail);
+        public static NonEmptyReadOnlySet<T> NonEmptySetOf<T>(T head, params T[] tail) => new(head, tail);
+        public static NonEmptyReadOnlySet<T> ToNonEmptySet<T>(this IEnumerable<T> ts) => new(ts.First(), ts.Tail().ToArray());
+        public static NonEmptyReadOnlyList<T> ToNonEmptyList<T>(this IEnumerable<T> ts) => new(ts.First(), ts.Tail().ToArray());
         public static IReadOnlyList<T> ListOf<T>(params T[] ts) => ts;
         public static IReadOnlyList<T> EmptyList<T>() => Array.Empty<T>();
 

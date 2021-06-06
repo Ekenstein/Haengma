@@ -1,4 +1,5 @@
-﻿using Pidgin;
+﻿using Haengma.Core.Utils;
+using Pidgin;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -28,27 +29,27 @@ namespace Haengma.Core.Sgf
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
 
-        public record C(string Comment) : SgfProperty(SgfPropertyType.NodeAnnotation)
+        public record C(SgfText Comment) : SgfProperty(SgfPropertyType.NodeAnnotation)
         {
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
 
-        public record PB(string Name) : SgfProperty(SgfPropertyType.GameInfo)
+        public record PB(SgfSimpleText Name) : SgfProperty(SgfPropertyType.GameInfo)
         {
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
 
-        public record PW(string Name) : SgfProperty(SgfPropertyType.GameInfo)
+        public record PW(SgfSimpleText Name) : SgfProperty(SgfPropertyType.GameInfo)
         {
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
 
-        public record AB(IReadOnlySet<Point> Stones) : SgfProperty(SgfPropertyType.Setup)
+        public record AB(NonEmptyReadOnlySet<Point> Stones) : SgfProperty(SgfPropertyType.Setup)
         {
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
 
-        public record AW(IReadOnlySet<Point> Stones) : SgfProperty(SgfPropertyType.Setup)
+        public record AW(NonEmptyReadOnlySet<Point> Stones) : SgfProperty(SgfPropertyType.Setup)
         {
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
@@ -78,32 +79,32 @@ namespace Haengma.Core.Sgf
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
 
-        public record AP((string name, string version) Application) : SgfProperty(SgfPropertyType.Root)
+        public record AP(SgfSimpleText Name, SgfSimpleText Version) : SgfProperty(SgfPropertyType.Root)
         {
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
 
-        public record BR(string Rank) : SgfProperty(SgfPropertyType.GameInfo)
+        public record BR(SgfSimpleText Rank) : SgfProperty(SgfPropertyType.GameInfo)
         {
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
 
-        public record WR(string Rank) : SgfProperty(SgfPropertyType.GameInfo)
+        public record WR(SgfSimpleText Rank) : SgfProperty(SgfPropertyType.GameInfo)
         {
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
 
-        public record Unknown(string Identifier, IReadOnlyList<string> Values) : SgfProperty(SgfPropertyType.GameInfo)
+        public record Unknown(string Identifier, NonEmptyReadOnlyList<SgfText> Values) : SgfProperty(SgfPropertyType.GameInfo)
         {
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
 
-        public record OT(string Overtime) : SgfProperty(SgfPropertyType.Timing)
+        public record OT(SgfSimpleText Overtime) : SgfProperty(SgfPropertyType.Timing)
         {
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
 
-        public record RE(string Result) : SgfProperty(SgfPropertyType.GameInfo)
+        public record RE(SgfSimpleText Result) : SgfProperty(SgfPropertyType.GameInfo)
         {
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }

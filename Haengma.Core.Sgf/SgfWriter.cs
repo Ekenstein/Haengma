@@ -51,29 +51,15 @@ namespace Haengma.Core.Sgf
                 : c.ToString();
         }
 
-        private static string SimpleTextToSgf(this string text, bool isComposed)
-        {
-            static char ReplaceWhitespace(char c) => char.IsWhiteSpace(c)
-                ? ' '
-                : c;
+        private static string SimpleTextToSgf(this SgfSimpleText text, bool isComposed) => text
+            .Text
+            .SelectMany(x => EscapeChar(x, isComposed))
+            .JoinToString("");
 
-            var cs = text.Select(ReplaceWhitespace).SelectMany(x => EscapeChar(x, isComposed));
-            return string.Join("", cs);
-        }
-
-        private static string TextToSgf(this string text, bool isComposed)
-        {
-            static char NormalizeWhitespace(char c)
-            {
-                var legalWhitespace = new[] { '\n', ' ' };
-                return char.IsWhiteSpace(c) && !legalWhitespace.Contains(c)
-                    ? ' '
-                    : c;
-            }
-
-            var cs = text.Select(NormalizeWhitespace).SelectMany(x => EscapeChar(x, isComposed));
-            return string.Join("", cs);
-        }
+        private static string TextToSgf(this SgfText text, bool isComposed) => text
+            .Text
+            .Select(x => EscapeChar(x, isComposed))
+            .JoinToString("");
 
         private static string ToSgf(this Point point)
         {
@@ -155,9 +141,8 @@ namespace Haengma.Core.Sgf
 
             public string Accept(SgfProperty.AP aP) => ToSgf(
                 "AP",
-                aP.Application.ToSgf(
-                    l => l.SimpleTextToSgf(true),
-                    r => r.SimpleTextToSgf(true)));
+                aP.Name.To(aP.Version).ToSgf(x => x.SimpleTextToSgf(true), x => x.SimpleTextToSgf(true))
+            );
 
             public string Accept(SgfProperty.Unknown unknown) => ToSgf(
                 unknown.Identifier, 
