@@ -1,4 +1,7 @@
+using Haengma.Core.Sgf;
+using static Haengma.Core.Utils.Collections;
 using Xunit;
+using static Haengma.Core.Sgf.SgfProperty;
 
 namespace Haengma.SGF.Tests
 {
@@ -80,7 +83,7 @@ namespace Haengma.SGF.Tests
             Assert.True(result.Success);
             TestUtils.AssertProperty<AB>(result.Value, ab =>
             {
-                Assert.Equal(Set.Of(new Point(1, 1), new Point(1, 2), new Point(1, 3)), ab.Stones);
+                Assert.Equal(SetOf(new Point(1, 1), new Point(1, 2), new Point(1, 3)), ab.Stones);
             });
         }
 

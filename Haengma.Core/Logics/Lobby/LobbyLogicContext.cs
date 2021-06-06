@@ -23,7 +23,7 @@ namespace Haengma.Core.Logics.Lobby
         public GameId CreateGame(UserId userId, GameSettings gameSettings)
         {
             var gameId = new GameId(IdGenerator.Generate());
-            Lobby.OpenGames[userId] = new OpenGameState(gameId, gameSettings, new ChallengeQueue());
+            Lobby.OpenGames[userId] = new OpenGameState(gameId, gameSettings);
             return gameId;
         }
 

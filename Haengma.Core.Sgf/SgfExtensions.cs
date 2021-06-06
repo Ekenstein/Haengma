@@ -2,10 +2,11 @@
 using System;
 using System.Linq;
 using static Haengma.Core.Sgf.SgfProperty;
+using static Haengma.Core.Utils.Collections;
 
 namespace Haengma.Core.Sgf
 {
-    public static class SgfHelpers
+    public static class SgfExtensions
     {
         public static SgfColor Inverse(this SgfColor color) => color switch
         {
@@ -13,7 +14,7 @@ namespace Haengma.Core.Sgf
             _ => SgfColor.Black
         };
 
-        public static SgfNode AsNode(this SgfProperty property) => new(Set.Of(property));
+        public static SgfNode AsNode(this SgfProperty property) => new(SetOf(property));
 
         public static SgfGameTree AppendNode(this SgfGameTree tree, SgfNode node) => tree with
         {
@@ -52,7 +53,7 @@ namespace Haengma.Core.Sgf
 
         public static SgfGameTree AddOrUpdatePropertyOnLastNode<T>(this SgfGameTree tree, Func<T, T> onUpdate, Func<T> onAdd) where T : SgfProperty
         {
-            var property = tree.FindPropertyFromLastNode<T>()?.Map(onUpdate) ?? onAdd();
+            var property = tree.FindPropertyFromLastNode<T>()?.Let(onUpdate) ?? onAdd();
 
             return tree.AppendPropertyToLastNode(property);
         }
@@ -60,10 +61,10 @@ namespace Haengma.Core.Sgf
         public static SgfNode AddProperty<T>(this SgfNode node, T property) where T : SgfProperty
         {
             var oldProperties = node.Properties.OfType<T>().ToSet<SgfProperty>();
-            var properties = node.Properties - oldProperties;
+            var properties = node.Properties.Subset(oldProperties);
             return node with
             {
-                Properties = properties + Set.Of<SgfProperty>(property)
+                Properties = properties.Merge(SetOf<SgfProperty>(property))
             };
         }
 

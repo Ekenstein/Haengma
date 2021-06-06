@@ -7,10 +7,11 @@ using System.Linq;
 using static Haengma.Core.Sgf.SgfProperty;
 using static Pidgin.Parser;
 using static Pidgin.Parser<char>;
+using static Haengma.Core.Utils.Collections;
 
 namespace Haengma.Core.Sgf
 {
-    public class SgfReader
+    public static class SgfReader
     {
         private static readonly char[] Linebreaks = new[] { '\n', '\r' };
         private static readonly char[] EscapedChars = new[] { ']', '\\' };
@@ -34,9 +35,9 @@ namespace Haengma.Core.Sgf
             .AtLeastOnceString()
             .Labelled("property identifier");
 
-        private static Parser<char, IEnumerable<T>> PropertyValues<T>(Parser<char, T> parser) => parser
-            .Between(Char('['), Char(']'))
-            .Many()
+        private static Parser<char, IEnumerable<T>> PropertyValues<T>(Parser<char, T> parser) => 
+            Try(parser.Between(Char('['), Char(']')).Many())
+            .Or(String("[]").Select(_ => Enumerable.Empty<T>()))
             .Labelled("property value");
 
         private static Parser<char, T> PropertyValue<T>(Parser<char, T> parser) => PropertyValues(parser)
@@ -44,7 +45,18 @@ namespace Haengma.Core.Sgf
             .Select(x => x.Single());
 
         private static Parser<char, Point> Point => Token(char.IsLetter)
-            .Select(c => (c - 'a') + 1)
+            .Between(SkipWhitespaces)
+            .Assert(x => x >= 'a' && x <= 'z' || x >= 'A' && x <= 'Z')
+            .Select(c => {
+                if (c >= 'a' && c <= 'z')
+                {
+                    return c - 'a' + 1;
+                }
+                else
+                {
+                    return c - 'A' + 27;
+                }
+            })
             .Repeat(2)
             .Select(v => new Point(v.ElementAt(0), v.ElementAt(1)))
             .Labelled("Point");
@@ -71,26 +83,12 @@ namespace Haengma.Core.Sgf
             .ManyString()
             .Labelled("Text");
 
-        private static Parser<char, int?> Decimals => Try(Token('.').Then(Int))
-            .Optional()
-            .Select<int?>(x => x.HasValue ? x.Value : null);
-
-        private static Parser<char, SgfSign> NumberSign { get; } = Char('+')
-            .Or(Char('-'))
-            .Select(v => v == '+' ? SgfSign.Plus : SgfSign.Minus);
-
-        private static Parser<char, (SgfSign? sign, int number)> Number { get; } =
-            (from sign in Try(NumberSign).Optional().Select<SgfSign?>(x => x.HasValue ? x.Value : null)
-             from value in Int
-             select (sign, value))
-            .Labelled("Number");
-
-        private static Parser<char, (SgfSign? sign, double number)> Real { get; } =
-             (from number in Number
-              from decimals in Decimals
-              let value = number.number + (decimals?.Map(d => d / 10) ?? 0.0)
-              select (number.sign, value))
-            .Labelled("Real");
+        private static Parser<char, SgfColor> Color => OneOf(Char('B'), Char('W')).Select(x => x switch
+        {
+            'B' => SgfColor.Black,
+            'W' => SgfColor.White,
+            _ => throw new InvalidOperationException($"Bug: Expected one of 'W' and 'B' but got {x}.")
+        });
 
         private static Parser<char, (L, R)> Composed<L, R>(Parser<char, L> p1, Parser<char, R> p2) =>
             (from v1 in p1
@@ -112,11 +110,13 @@ namespace Haengma.Core.Sgf
             "HA" => PropertyValue(Int).Select<SgfProperty>(x => new HA(x)).Labelled("HA"),
             "MN" => PropertyValue(Int).Select<SgfProperty>(x => new MN(x)).Labelled("MN"),
             "AP" => PropertyValue(Composed(SimpleText(true), SimpleText(true))).Select<SgfProperty>(x => new AP(x)).Labelled("AP"),
-            "KM" => PropertyValue(Real).Select<SgfProperty>(x => new KM(x.number)).Labelled("KM"),
+            "KM" => PropertyValue(Real).Select<SgfProperty>(x => new KM(x)).Labelled("KM"),
             "RE" => PropertyValue(SimpleText(false)).Select<SgfProperty>(x => new RE(x)).Labelled("RE"),
             "BR" => PropertyValue(SimpleText(false)).Select<SgfProperty>(x => new BR(x)).Labelled("BR"),
             "WR" => PropertyValue(SimpleText(false)).Select<SgfProperty>(x => new WR(x)).Labelled("WR"),
-            _ => PropertyValues(OneOf(Try(Text(true)), Try(Text(false)))).Select<SgfProperty>(x => new Unknown(identifier, x.ToArray()))
+            "PL" => PropertyValue(Color).Select<SgfProperty>(x => new PL(x)).Labelled("PL"),
+            "EM" => PropertyValue(Composed(Color, Int)).Select<SgfProperty>(x => new Emote(x.Item1, (SgfEmote)x.Item2)).Labelled("Emote"),
+            _ => PropertyValues(Text(false)).Select<SgfProperty>(x => new Unknown(identifier, x.ToArray()))
         };
 
         private static Parser<char, SgfProperty> Property =>
@@ -136,10 +136,12 @@ namespace Haengma.Core.Sgf
             from end in Char(')')
             select new SgfGameTree(sequence.ToArray(), trees.ToArray());
 
-        public static Result<char, IReadOnlyList<SgfGameTree>> Parse(TextReader reader) => GameTree
+        private static Parser<char, IReadOnlyList<SgfGameTree>> Collection => GameTree
             .Between(SkipWhitespaces)
             .Many()
-            .Select<IReadOnlyList<SgfGameTree>>(ts => ts.ToArray())
+            .Select(x => ListOf(x.ToArray()));
+
+        public static Result<char, IReadOnlyList<SgfGameTree>> Parse(TextReader reader) => Collection
             .Parse(reader);
 
         public static Result<char, IReadOnlyList<SgfGameTree>> Parse(string s) => new StringReader(s).Use(x => Parse(x));

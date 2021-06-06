@@ -41,7 +41,7 @@ namespace Haengma.Core.Sgf
 
         private static string ToSgf(this Move move) => move
             .ToPoint()
-            ?.Map(p => p.ToSgf()) ?? "";
+            ?.Let(p => p.ToSgf()) ?? "";
 
         private static string EscapeChar(char c, bool isComposed)
         {
@@ -159,18 +159,20 @@ namespace Haengma.Core.Sgf
                     l => l.SimpleTextToSgf(true),
                     r => r.SimpleTextToSgf(true)));
 
-            public string Accept(SgfProperty.Unknown unknown) => ToSgf(unknown.Identifier, unknown.Values.ToArray());
+            public string Accept(SgfProperty.Unknown unknown) => ToSgf(
+                unknown.Identifier, 
+                unknown.Values.Select(x => TextToSgf(x, false)).ToArray()
+            );
 
             public string Accept(SgfProperty.BR bR) => ToSgf("BR", bR.Rank.SimpleTextToSgf(false));
 
             public string Accept(SgfProperty.WR wR) => ToSgf("WR", wR.Rank.SimpleTextToSgf(false));
 
-            public string Accept(SgfProperty.OT oT)
-            {
-                throw new NotImplementedException();
-            }
+            public string Accept(SgfProperty.OT oT) => ToSgf("OT", oT.Overtime.SimpleTextToSgf(false));
 
             public string Accept(SgfProperty.RE rE) => ToSgf("RE", rE.Result.SimpleTextToSgf(false));
+
+            public string Accept(SgfProperty.Emote emote) => ToSgf("EM", (emote.Color, emote.Message).ToSgf(x => x.ToSgf(), x => ((int)x).ToString()).ToString());
         }
     }
 }

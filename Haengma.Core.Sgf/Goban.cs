@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using static Haengma.Core.Sgf.SgfProperty;
+using static Haengma.Core.Utils.Collections;
 
 namespace Haengma.Core.Sgf
 {
-    public record GoBoard(Set<Stone> Stones, Map<SgfColor, int> Captures, int BoardSize)
+    public record GoBoard(IReadOnlySet<Stone> Stones, IReadOnlyDictionary<SgfColor, int> Captures, int BoardSize)
     {
-        public static GoBoard Empty(int boardSize) => new(Set.Empty<Stone>(), Map.Of((SgfColor.Black, 0), (SgfColor.White, 0)), boardSize);
+        public static GoBoard Empty(int boardSize) => new(EmptySet<Stone>(), MapOf(SgfColor.Black.To(0), SgfColor.White.To(0)), boardSize);
 
         public bool IsOccupied(Point point) => Stones.Any(x => x.Point == point);
     }
@@ -59,22 +60,19 @@ namespace Haengma.Core.Sgf
         public static SgfGameTree SetWhitePlayerRank(this SgfGameTree tree, string rank) => tree.AddRootProperty(new WR(rank));
         public static int? GetHandicap(this SgfGameTree tree) => tree.RootNode()?.FindProperty<HA>()?.Handicap;
         public static bool HasGameEnded(this SgfGameTree tree) => tree.RootNode()?.FindProperty<RE>() != null || tree.HasTwoConsecutivePasses();
+        public static SgfGameTree SetTurn(this SgfGameTree tree, SgfColor color) => tree.AppendNode(new PL(color).AsNode());
+        public static SgfGameTree AddEmote(this SgfGameTree tree, SgfColor color, SgfEmote emote) => tree.AppendPropertyToLastNode(new Emote(color, emote));
         public static bool HasTurn(this SgfGameTree tree, SgfColor color) => !tree.HasGameEnded() && tree
             .Sequence
             .SelectMany(x => x.Properties)
             .SelectNotNull(x => x switch
             {
                 PL pl => pl.Color,
-                B b => SgfColor.Black,
-                W w => SgfColor.White,
-                AB => SgfColor.Black,
-                AW => SgfColor.White,
-                _ => new SgfColor?()
-            })
-            .Select(x => x switch
-            {
-                SgfColor.White => SgfColor.Black,
-                _ => SgfColor.White
+                B b => SgfColor.White,
+                W w => SgfColor.Black,
+                AB => SgfColor.White,
+                AW => SgfColor.Black,
+                _ => default
             })
             .DefaultIfEmpty(SgfColor.Black)
             .LastOrDefault() == color;
@@ -194,8 +192,8 @@ namespace Haengma.Core.Sgf
         {
             AB ab => ab.Stones.Select(x => new Stone(SgfColor.Black, x)).ToArray(),
             AW aw => aw.Stones.Select(x => new Stone(SgfColor.White, x)).ToArray(),
-            W w => w.Move.ToPoint()?.Map(x => List.Of(new Stone(SgfColor.White, x))) ?? List.Empty<Stone>(),
-            B b => b.Move.ToPoint()?.Map(x => List.Of(new Stone(SgfColor.Black, x))) ?? List.Empty<Stone>(),
+            W w => w.Move.ToPoint()?.Let(x => List.Of(new Stone(SgfColor.White, x))) ?? List.Empty<Stone>(),
+            B b => b.Move.ToPoint()?.Let(x => List.Of(new Stone(SgfColor.Black, x))) ?? List.Empty<Stone>(),
             _ => List.Empty<Stone>()
         };
 
@@ -205,34 +203,33 @@ namespace Haengma.Core.Sgf
             .SelectMany(x => x.GetStones())
             .ToArray();
 
-        private static Set<Point> AdjacentPoints(this Point point, int boardSize) => Set.Of(
+        private static IReadOnlySet<Point> AdjacentPoints(this Point point, int boardSize) => SetOf(
             new Point(point.X - 1, point.Y),
             new Point(point.X + 1, point.Y),
             new Point(point.X, point.Y - 1),
             new Point(point.X, point.Y + 1)
         ).Where(x => x.X >= 1 && x.X <= boardSize && x.Y >= 1 && x.Y <= boardSize).ToSet();
 
-        private static (Set<Stone> group, int liberties) GetLiberties(this GoBoard board,
+        private static (IReadOnlySet<Stone> group, int liberties) GetLiberties(this GoBoard board,
             Stone stone)
         {
-            Map<Stone, int> Liberties(Map<Stone, int> currentGroup, Stone stone)
+            IReadOnlyDictionary<Stone, int> Liberties(IReadOnlyDictionary<Stone, int> currentGroup, Stone stone)
             {
                 var adjacentPoints = stone.Point.AdjacentPoints(board.BoardSize);
 
                 var adjacentStones = board.Stones.Where(x => adjacentPoints.Contains(x.Point));
                 var liberties = adjacentPoints.Count - adjacentStones.Count();
 
-                var newGroup = currentGroup + Map.Of((stone, liberties));
+                var newGroup = currentGroup.Merge(MapOf(stone.To(liberties)));
                 var friendlyStones = adjacentStones
                     .Where(x => x.Color == stone.Color)
                     .Where(x => !newGroup.Keys.Contains(x));
 
                 return friendlyStones
-                    .Aggregate(newGroup, (group, stone) => group + Liberties(group, stone));
+                    .Aggregate(newGroup, (group, stone) => group.Merge(Liberties(group, stone)));
             }
 
-            return Liberties(Map.Empty<Stone, int>(), stone)
-                .Map(x => (x.Keys.ToSet(), x.Values.Sum()));
+            return Liberties(EmptyMap<Stone, int>(), stone).Let(x => (x.Keys.ToSet(), x.Values.Sum()));
         }
 
         public static GoBoard GetBoard(this SgfGameTree tree, int boardSize) => tree
@@ -241,7 +238,7 @@ namespace Haengma.Core.Sgf
             {
                 var newBoard = board with
                 {
-                    Stones = board.Stones + Set.Of(stone)
+                    Stones = board.Stones.Merge(SetOf(stone))
                 };
 
                 var adjacentPoints = stone
@@ -263,7 +260,7 @@ namespace Haengma.Core.Sgf
                     return liberties <= 0
                         ? board with
                         {
-                            Stones = board.Stones - group,
+                            Stones = board.Stones.Subset(group),
                             Captures = board.Captures.MapKey(stone.Color.Inverse(), n => n + group.Count)
                         }
                         : board;
@@ -288,44 +285,44 @@ namespace Haengma.Core.Sgf
         private static Point Tengen(int boardSize) => new(Middle(boardSize), Middle(boardSize));
         private static int Middle(int boardSize) => (int)Math.Ceiling(boardSize / 2d);
 
-        private static Set<Point> GetHandicapPoints(int boardSize, int handicap)
+        private static IReadOnlySet<Point> GetHandicapPoints(int boardSize, int handicap)
         {
             var edgeDistance = GetEdgeDistance(boardSize);
             if (edgeDistance == null)
             {
-                return Set.Empty<Point>();
+                return EmptySet<Point>();
             }
 
             return getHandicap(handicap, edgeDistance.Value, boardSize);
 
-            static Set<Point> getHandicap(int handicap, int edgeDistance, int boardSize) => handicap switch
+            static IReadOnlySet<Point> getHandicap(int handicap, int edgeDistance, int boardSize) => handicap switch
             {
-                2 => Set.Of(
+                2 => SetOf(
                     new Point(edgeDistance, boardSize - edgeDistance + 1),
                     new Point(boardSize - edgeDistance + 1, edgeDistance)
                 ),
-                3 => Set.Of(
+                3 => SetOf(
                     new Point(boardSize - edgeDistance + 1, boardSize - edgeDistance + 1)
-                ) + getHandicap(2, edgeDistance, boardSize),
-                4 => Set.Of(
+                ).Merge(getHandicap(2, edgeDistance, boardSize)),
+                4 => SetOf(
                     new Point(edgeDistance, edgeDistance)
-                ) + getHandicap(3, edgeDistance, boardSize),
-                5 => Set.Of(
+                ).Merge(getHandicap(3, edgeDistance, boardSize)),
+                5 => SetOf(
                     Tengen(boardSize)
-                ) + getHandicap(4, edgeDistance, boardSize),
-                6 => Set.Of(
+                ).Merge(getHandicap(4, edgeDistance, boardSize)),
+                6 => SetOf(
                     new Point(edgeDistance, Middle(boardSize)),
                     new Point(boardSize - edgeDistance + 1, Middle(boardSize))
-                ) + getHandicap(4, edgeDistance, boardSize),
-                7 => Set.Of(
+                ).Merge(getHandicap(4, edgeDistance, boardSize)),
+                7 => SetOf(
                     Tengen(boardSize)
-                ) + getHandicap(6, edgeDistance, boardSize),
-                8 => Set.Of(
+                ).Merge(getHandicap(6, edgeDistance, boardSize)),
+                8 => SetOf(
                     new Point(Middle(boardSize), edgeDistance),
                     new Point(Middle(boardSize), boardSize - edgeDistance + 1)
-                ) + getHandicap(6, edgeDistance, boardSize),
-                9 => Set.Of(Tengen(boardSize)) + getHandicap(8, edgeDistance, boardSize),
-                _ => Set.Empty<Point>()
+                ).Merge(getHandicap(6, edgeDistance, boardSize)),
+                9 => SetOf(Tengen(boardSize)).Merge(getHandicap(8, edgeDistance, boardSize)),
+                _ => EmptySet<Point>()
             };
         }
     }

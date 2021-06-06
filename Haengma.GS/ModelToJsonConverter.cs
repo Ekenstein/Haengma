@@ -2,22 +2,12 @@
 using Haengma.GS.Models;
 using System;
 using System.Linq;
-using static Haengma.Core.Models.Rank;
 using static Haengma.Core.Models.TimeSettings;
 
 namespace Haengma.GS
 {
     public static class ModelToJsonConverter
     {
-        public static JsonGameId ToJson(this GameId gameId) => new(gameId.Value);
-
-        public static JsonRank ToJson(this Rank rank) => rank switch
-        {
-            Dan => new JsonRank(rank.Value, JsonRankType.Dan),
-            Kyu => new JsonRank(rank.Value, JsonRankType.Kyu),
-            _ => throw new InvalidOperationException($"Couldn't recognize the given rank {rank}.")
-        };
-
         public static JsonTimeSettings ToJson(this TimeSettings timeSettings) => timeSettings switch
         {
             ByoYomi byoYomi => new JsonTimeSettings(JsonTimeSettingType.ByoYomi, byoYomi.MainTimeInSeconds, byoYomi.ByoYomiPeriods, byoYomi.ByoYomiSeconds),
@@ -57,6 +47,16 @@ namespace Haengma.GS
             ColorDecision.OwnerTakesBlack => JsonPlayerDecision.OwnerTakesBlack,
             ColorDecision.ChallengerTakesBlack => JsonPlayerDecision.ChallengerTakesBlack,
             _ => throw new InvalidOperationException($"Couldn't recognize the given decision {decision}.")
+        };
+
+        public static JsonEmote ToJson(this Emote emote) => emote switch
+        {
+            Emote.Greetings => JsonEmote.Greetings,
+            Emote.Bye => JsonEmote.Bye,
+            Emote.Mistake => JsonEmote.Mistake,
+            Emote.Impressed => JsonEmote.Impressed,
+            Emote.Thanks => JsonEmote.Thanks,
+            _ => throw new ArgumentOutOfRangeException(nameof(emote), emote, $"Couldn't recognize the given emote {emote}.")
         };
     }
 }

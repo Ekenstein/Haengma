@@ -1,5 +1,10 @@
-﻿using System.Linq;
+﻿using Haengma.Core.Sgf;
+using Haengma.Core.Utils;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
+using static Haengma.Core.Sgf.SgfProperty;
+using static Haengma.Core.Utils.Collections;
 
 namespace Haengma.SGF.Tests
 {
@@ -47,10 +52,10 @@ namespace Haengma.SGF.Tests
             var actualTree = SgfGameTree.Empty.PlaceFixedHandicap(handicap, boardSize);
             TestUtils.AssertProperty<HA>(List.Of(actualTree), ha => Assert.Equal(handicap, ha.Handicap));
 
-            var factStones = TestUtils.AssertAndGetPropertyValue<AB, Set<Point>>(fact.Value, ab => ab.Stones);
-            var actualStones = TestUtils.AssertAndGetPropertyValue<AB, Set<Point>>(fact.Value, ab => ab.Stones);
+            var factStones = TestUtils.AssertAndGetPropertyValue<AB, IReadOnlySet<Point>>(fact.Value, ab => ab.Stones);
+            var actualStones = TestUtils.AssertAndGetPropertyValue<AB, IReadOnlySet<Point>>(fact.Value, ab => ab.Stones);
 
-            static IOrderedEnumerable<Point> OrderStones(Set<Point> stones) => stones.OrderBy(x => x.X).ThenBy(x => x.Y);
+            static IOrderedEnumerable<Point> OrderStones(IReadOnlySet<Point> stones) => stones.OrderBy(x => x.X).ThenBy(x => x.Y);
 
             Assert.Equal(OrderStones(factStones), OrderStones(actualStones));
         }
@@ -68,14 +73,14 @@ namespace Haengma.SGF.Tests
         [Fact]
         public void CanNotPlaceFixedHandicapWhenBoardIsNotEmpty()
         {
-            var tree = SgfGameTree.Empty.PlayMove(Color.Black, new Move.Point(3, 3), 19);
+            var tree = SgfGameTree.Empty.PlayMove(SgfColor.Black, new Move.Point(3, 3), 19);
             Assert.Throws<SgfException>(() => tree.PlaceFixedHandicap(4, 19));
         }
 
         [Fact]
         public void CapturingAStoneRemovesItFromTheBoard()
         {
-            static Set<Point> Ponnuki(int x, int y) => Set.Of(
+            static IReadOnlySet<Point> Ponnuki(int x, int y) => SetOf(
                 new Point(x - 1, y),
                 new Point(x + 1, y),
                 new Point(x, y - 1),
@@ -85,20 +90,20 @@ namespace Haengma.SGF.Tests
             var ponnuki = Ponnuki(4, 4);
 
             var tree = ponnuki.Aggregate(
-                SgfGameTree.Empty.PlayMove(Color.Black, new Move.Point(4, 4), 19),
-                (tree, move) => tree.PlayMove(Color.White, new Move.Point(move.X, move.Y), 19).PlayMove(Color.Black, new Move.Pass(), 19)
+                SgfGameTree.Empty.PlayMove(SgfColor.Black, new Move.Point(4, 4), 19),
+                (tree, move) => tree.PlayMove(SgfColor.White, new Move.Point(move.X, move.Y), 19).PlayMove(SgfColor.Black, new Move.Pass(), 19)
             );
 
             var board = tree.GetBoard(19);
             Assert.Equal(ponnuki.Count, board.Stones.Count);
             Assert.Contains(board.Stones, stone => ponnuki.Contains(stone.Point));
-            Assert.All(board.Stones, stone => Assert.Equal(Color.White, stone.Color));
+            Assert.All(board.Stones, stone => Assert.Equal(SgfColor.White, stone.Color));
         }
 
         [Theory]
-        [InlineData("(;AB[aa][ba]AW[ab][bb][ca])", Color.White, 2)]
-        [InlineData("(;B[dd];W[pp];B[fd];W[ee];B[ed];W[de];B[pd];W[fe];B[ge];W[gd];B[hd];W[gc];B[hc];W[fb];B[hb];W[cd];B[dc];W[cc];B[db];W[cb];B[gb];W[fc];B[fa];W[ea];B[ga];W[eb];B[da];W[ca];B[ec])", Color.Black, 6)]
-        public void CapturingAGroupRemovesTheGroupFromTheBoard(string sgf, Color color, int captures)
+        [InlineData("(;AB[aa][ba]AW[ab][bb][ca])", SgfColor.White, 2)]
+        [InlineData("(;B[dd];W[pp];B[fd];W[ee];B[ed];W[de];B[pd];W[fe];B[ge];W[gd];B[hd];W[gc];B[hc];W[fb];B[hb];W[cd];B[dc];W[cc];B[db];W[cb];B[gb];W[fc];B[fa];W[ea];B[ga];W[eb];B[da];W[ca];B[ec])", SgfColor.Black, 6)]
+        public void CapturingAGroupRemovesTheGroupFromTheBoard(string sgf, SgfColor color, int captures)
         {
             var result = SgfReader.Parse(sgf);
             Assert.True(result.Success);
@@ -113,8 +118,8 @@ namespace Haengma.SGF.Tests
         [Fact]
         public void CanNotPlayAtOccupiedPoint()
         {
-            var tree = SgfGameTree.Empty.PlayMove(Color.Black, new Move.Point(3, 3), 19);
-            Assert.Throws<SgfException>(() => tree.PlayMove(Color.Black, new Move.Point(3, 3), 19));
+            var tree = SgfGameTree.Empty.PlayMove(SgfColor.Black, new Move.Point(3, 3), 19);
+            Assert.Throws<SgfException>(() => tree.PlayMove(SgfColor.Black, new Move.Point(3, 3), 19));
         }
 
         [Fact]
@@ -122,7 +127,7 @@ namespace Haengma.SGF.Tests
         {
             var sgf = "(;AW[cd][dd][de]AB[cc][dc][bd][ed][be][ee][cf][df])";
             var tree = SgfReader.Parse(sgf).Value.Single();
-            Assert.Throws<SgfException>(() => tree.PlayMove(Color.White, new Move.Point(3, 5), 19));
+            Assert.Throws<SgfException>(() => tree.PlayMove(SgfColor.White, new Move.Point(3, 5), 19));
         }
 
         [Fact]
@@ -139,11 +144,11 @@ namespace Haengma.SGF.Tests
         {
             var tree = SgfReader.Parse("(;AW[cn][bo][ap][bp][aq][cq][dq][ar][dr][er][as][ds]AB[cp][dp][ep][bq][eq][fq][gq][br][cr][fr][bs][es][fs])").Value.Single();
 
-            var blackCaptures = tree.PlayMove(Color.Black, new Move.Point(3, 19), 19).GetBoard(19);
-            Assert.Equal(5, blackCaptures.Captures[Color.Black]);
+            var blackCaptures = tree.SetTurn(SgfColor.Black).PlayMove(SgfColor.Black, new Move.Point(3, 19), 19).GetBoard(19);
+            Assert.Equal(5, blackCaptures.Captures[SgfColor.Black]);
 
-            var whiteCaptures = tree.PlayMove(Color.White, new Move.Point(3, 19), 19).GetBoard(19);
-            Assert.Equal(4, whiteCaptures.Captures[Color.White]);
+            var whiteCaptures = tree.SetTurn(SgfColor.White).PlayMove(SgfColor.White, new Move.Point(3, 19), 19).GetBoard(19);
+            Assert.Equal(4, whiteCaptures.Captures[SgfColor.White]);
         }
     }
 }

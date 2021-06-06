@@ -1,11 +1,14 @@
 ﻿using Haengma.Core.Utils;
 using System;
 using System.Collections.Generic;
+using static Haengma.Core.Utils.Collections;
 
 namespace Haengma.Core.Sgf
 {
     public enum SgfColor { Black, White }
     public enum SgfSign { Plus, Minus }
+
+    public enum SgfEmote { Greetings, Bye, Impressed, Thanks, Mistake }
 
     public sealed record Point(int X, int Y);
 
@@ -29,9 +32,9 @@ namespace Haengma.Core.Sgf
         };
     }
 
-    public sealed record SgfNode(Set<SgfProperty> Properties)
+    public sealed record SgfNode(IReadOnlySet<SgfProperty> Properties)
     {
-        public static SgfNode Empty => new(Set.Empty<SgfProperty>());
+        public static SgfNode Empty => new(EmptySet<SgfProperty>());
     }
 
     public sealed record SgfGameTree(IReadOnlyList<SgfNode> Sequence, IReadOnlyList<SgfGameTree> Trees)

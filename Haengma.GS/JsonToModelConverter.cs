@@ -1,7 +1,6 @@
 ﻿using Haengma.Core.Models;
 using Haengma.GS.Models;
 using System;
-using static Haengma.Core.Models.Rank;
 using static Haengma.Core.Models.TimeSettings;
 
 namespace Haengma.GS
@@ -42,18 +41,5 @@ namespace Haengma.GS
             gameSettings.TimeSettings.ToModel(),
             gameSettings.ColorDecision.ToModel()
         );
-
-        public static Rank ToModel(this JsonRank rank) => rank.RankType switch
-        {
-            JsonRankType.Kyu => new Kyu
-            {
-                Value = rank.Rank
-            },
-            JsonRankType.Dan => new Dan
-            {
-                Value = rank.Rank
-            },
-            _ => throw new ArgumentOutOfRangeException(nameof(rank.RankType), rank.RankType, "Couldn't recognize the given rank type.")
-        };
     }
 }

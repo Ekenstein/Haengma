@@ -21,7 +21,7 @@ namespace Haengma.GS.Hubs
         public Task AddMove(string gameId, JsonPoint point) => _actionContext.AddMoveAsync(gameId, Context.ConnectionId, point);
         public Task Pass(string gameId) => _actionContext.PassAsync(gameId, Context.ConnectionId);
         public Task Resign(string gameId) => _actionContext.ResignAsync(gameId, Context.ConnectionId);
-        public Task Comment(string gameId, string message) => _actionContext.CommentAsync(gameId, Context.ConnectionId, message);
+        public Task Comment(string gameId, string message) => _actionContext.CommentAsync(gameId, message);
 
         public async Task CreateGame(JsonGameSettings gameSettings)
         {
@@ -41,5 +41,6 @@ namespace Haengma.GS.Hubs
         Task PlayerResigned(JsonColor color);
         Task PlayerPassed(JsonColor color);
         Task CommentAdded(string comment);
+        Task EmoteSent(JsonEmoteMessage emote);
     }
 }

@@ -25,7 +25,7 @@ namespace Haengma.Core.Services
             return Unit.Value;
         });
 
-        public static Task AddCommentAsync(this ServiceContext serviceContext, GameId gameId, UserId userId, string comment) => serviceContext.Transactions.WriteAsync(async tx =>
+        public static Task AddCommentAsync(this ServiceContext serviceContext, GameId gameId, string comment) => serviceContext.Transactions.WriteAsync(async tx =>
         {
             await serviceContext.Logics.Game.AddCommentAsync(tx, gameId, comment);
             return Unit.Value;

@@ -20,5 +20,6 @@
         T Accept(SgfProperty.WR wR);
         T Accept(SgfProperty.OT oT);
         T Accept(SgfProperty.RE rE);
+        T Accept(SgfProperty.Emote emote);
     }
 }

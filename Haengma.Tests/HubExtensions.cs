@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Haengma.Tests
 {
@@ -19,50 +20,67 @@ namespace Haengma.Tests
             connection.On<string>(nameof(IGameClient.CommentAdded), v => client.Object.CommentAdded(v));
             connection.On<string>(nameof(IGameClient.GameCreated), v => client.Object.GameCreated(v));
             connection.On<JsonGame>(nameof(IGameClient.GameStarted), v => client.Object.GameStarted(v));
+            connection.On<JsonColor>(nameof(IGameClient.PlayerPassed), v => client.Object.PlayerPassed(v));
 
             return client;
         }
 
         public static Task CreateGameAsync(this HubConnection hubConnection, JsonGameSettings gameSettings) => hubConnection
-            .InvokeAsync("CreateGame", gameSettings);
+            .InvokeAsync(nameof(GameHub.CreateGame), gameSettings);
 
         public static Task JoinGameAsync(this HubConnection hubConnection, string gameId) => hubConnection
-            .InvokeAsync("JoinGame", gameId);
+            .InvokeAsync(nameof(GameHub.JoinGame), gameId);
 
         public static Task AddMoveAsync(this HubConnection hubConnection, string gameId, JsonPoint move) => hubConnection
-            .InvokeAsync("AddMove", gameId, move);
+            .InvokeAsync(nameof(GameHub.AddMove), gameId, move);
 
-        public static async Task<JsonGame> VerifyGameStarted(this Mock<IGameClient> gameClient)
+        public static Task PassAsync(this HubConnection hubConnection, string gameId) => hubConnection
+            .InvokeAsync(nameof(GameHub.Pass), gameId);
+
+        public static async Task<JsonColor> VerifyPlayerPassedAsync(this Mock<IGameClient> gameClient, Times times, string failMessage = "Couldn't verify that a player passed.")
         {
-            await gameClient.VerifyWithTimeoutAsync(x => x.GameStarted(It.IsAny<JsonGame>()), Times.Once());
-            return gameClient.GetValueFromInvocations<JsonGame>(nameof(IGameClient.GameStarted));
+            await gameClient.VerifyWithTimeoutAsync(x => x.PlayerPassed(It.IsAny<JsonColor>()), times, failMessage: failMessage);
+            var value = gameClient.GetValueFromInvocations<JsonColor>(nameof(IGameClient.PlayerPassed));
+            gameClient.Invocations.Clear();
+            return value;
+        }
+
+        public static async Task<JsonGame> VerifyGameStarted(this Mock<IGameClient> gameClient, Times times, string failMessage = "Couldn't verify that game started was triggered.")
+        {
+            await gameClient.VerifyWithTimeoutAsync(x => x.GameStarted(It.IsAny<JsonGame>()), times, failMessage: failMessage);
+            var value = gameClient.GetValueFromInvocations<JsonGame>(nameof(IGameClient.GameStarted));
+            gameClient.Invocations.Clear();
+            return value;
         }
 
         public static async Task<JsonBoard> VerifyBoardUpdated(this Mock<IGameClient> gameClient, Times times, string failMessage = "Couldn't verify board update.")
         {
             await gameClient.VerifyWithTimeoutAsync(x => x.BoardUpdated(It.IsAny<JsonBoard>()), times, failMessage: failMessage);
-            return gameClient.GetValueFromInvocations<JsonBoard>(nameof(IGameClient.BoardUpdated));
+            var value = gameClient.GetValueFromInvocations<JsonBoard>(nameof(IGameClient.BoardUpdated));
+            gameClient.Invocations.Clear();
+            return value;
         }
 
         public static async Task<string> VerifyGameCreated(this Mock<IGameClient> gameClient, Times times, string failMessage = "Couldn't verify game created.")
         {
             await gameClient.VerifyWithTimeoutAsync(x => x.GameCreated(It.IsAny<string>()), times, failMessage: failMessage);
-            return gameClient.GetValueFromInvocations<string>(nameof(IGameClient.GameCreated));
+            var value = gameClient.GetValueFromInvocations<string>(nameof(IGameClient.GameCreated));
+            gameClient.Invocations.Clear();
+            return value;
         }
 
-        private static T GetValueFromInvocations<T>(this Mock<IGameClient> client, string methodName)
-        {
-            var method = typeof(IGameClient).GetMethod(methodName);
-            var invocations = client.Invocations.Where(x => x.Method == method).ToArray();
-            var arguments = invocations.SelectMany(x => x.Arguments).ToArray();
-            return arguments.OfType<T>().SingleOrDefault();
-        }
-
+        private static T GetValueFromInvocations<T>(this Mock<IGameClient> client, string methodName) => client
+            .Invocations
+            .Where(x => x.Method == typeof(IGameClient).GetMethod(methodName))
+            .SelectMany(x => x.Arguments)
+            .OfType<T>()
+            .LastOrDefault();
+    
         private static async Task VerifyWithTimeoutAsync(this Mock<IGameClient> gameClient,
             Expression<Func<IGameClient, Task>> method,
             Times times,
             int timeOutInMs = 100,
-            int delayBetweenIterationInMs = 20,
+            int delayBetweenIterationInMs = 50,
             string failMessage = "Failed to verify")
         {
             bool hasBeenExecuted = false;
@@ -83,16 +101,17 @@ namespace Haengma.Tests
                     gameClient.Verify(method, times);
                     hasBeenExecuted = true;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.Error.WriteLine(ex.Message);
                 }
                 await Task.Delay(delayBetweenIterationInMs);
             }
 
-            //if (!hasBeenExecuted)
-            //{
-            //    Assert.False(true, failMessage);
-            //}
+            if (!hasBeenExecuted)
+            {
+                Assert.False(true, failMessage);
+            }
         }
     }
 }

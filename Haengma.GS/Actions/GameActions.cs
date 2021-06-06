@@ -22,9 +22,8 @@ namespace Haengma.GS.Actions
             userId: new(connectionId)
         );
 
-        public static Task CommentAsync(this ActionContext context, string gameId, string connectionId, string comment) => context.Services.AddCommentAsync(
+        public static Task CommentAsync(this ActionContext context, string gameId, string comment) => context.Services.AddCommentAsync(
             gameId: new(gameId),
-            userId: new(connectionId),
             comment: comment
         );
     }

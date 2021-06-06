@@ -45,6 +45,11 @@ namespace Haengma.GS
         public Task PlayerResignedAsync(GameId gameId, Color color) => _hubContext.Clients.Group(gameId.Value).PlayerResigned(color.ToJson());
 
         public Task MoveAddedAsync(GameId gameId, Board board) => _hubContext.Clients.Group(gameId.Value).BoardUpdated(board.ToJson());
+
+        public Task EmoteSentAsync(GameId gameId, Emote emote, Color sender) => _hubContext
+            .Clients
+            .Group(gameId.Value)
+            .EmoteSent(new JsonEmoteMessage(sender.ToJson(), emote.ToJson()));
     }
 
     public class LobbyNotifier : ILobbyNotifier

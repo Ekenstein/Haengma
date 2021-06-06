@@ -23,5 +23,15 @@ namespace Haengma.Core.Logics.Games
             Color.White => SgfColor.White,
             _ => throw new InvalidOperationException($"Couldn't recognize the color {color}.")
         };
+
+        public static SgfEmote ToSgfModel(this Emote emote) => emote switch
+        {
+            Emote.Greetings => SgfEmote.Greetings,
+            Emote.Bye => SgfEmote.Bye,
+            Emote.Mistake => SgfEmote.Mistake,
+            Emote.Impressed => SgfEmote.Impressed,
+            Emote.Thanks => SgfEmote.Thanks,
+            _ => throw new ArgumentOutOfRangeException(nameof(emote), emote, $"Couldn't recognize the emote {emote}")
+        };
     }
 }

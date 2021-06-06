@@ -11,5 +11,6 @@ namespace Haengma.Core.Logics.Games
         Task GameHasEndedAsync(GameId gameId);
         Task GameHasStartedAsync(GameId gameId, UserId black, UserId white, Board board);
         Task CommentAddedAsync(GameId gameId, string comment);
+        Task EmoteSentAsync(GameId gameId, Emote emote, Color sender);
     }
 }

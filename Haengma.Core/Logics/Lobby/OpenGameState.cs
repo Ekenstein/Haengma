@@ -4,7 +4,6 @@ namespace Haengma.Core.Logics.Lobby
 {
     public record OpenGameState(
         GameId GameId,
-        GameSettings Settings,
-        ChallengeQueue Challenges
+        GameSettings Settings
     );
 }
