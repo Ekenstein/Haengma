@@ -6,7 +6,7 @@ namespace Haengma.Core.Logics.Games
 {
     public static class ModelConverters
     {
-        public static Models.Point ToServiceModel(this Sgf.Point point) => new(point.X, point.Y);
+        public static Models.Point ToServiceModel(this Sgf.SgfPoint point) => new(point.X, point.Y);
 
         public static Models.Stone ToServiceModel(this Sgf.Stone stone) => new(stone.Point.ToServiceModel(), stone.Color.ToServiceModel());
 

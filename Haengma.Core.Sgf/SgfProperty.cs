@@ -44,12 +44,12 @@ namespace Haengma.Core.Sgf
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
 
-        public record AB(NonEmptyReadOnlySet<Point> Stones) : SgfProperty(SgfPropertyType.Setup)
+        public record AB(NonEmptyReadOnlySet<SgfPoint> Stones) : SgfProperty(SgfPropertyType.Setup)
         {
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
 
-        public record AW(NonEmptyReadOnlySet<Point> Stones) : SgfProperty(SgfPropertyType.Setup)
+        public record AW(NonEmptyReadOnlySet<SgfPoint> Stones) : SgfProperty(SgfPropertyType.Setup)
         {
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
@@ -109,7 +109,7 @@ namespace Haengma.Core.Sgf
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }
 
-        public record Emote(SgfColor Color, SgfEmote Message) : SgfProperty(SgfPropertyType.NodeAnnotation)
+        public record EM(SgfColor Color, SgfEmote Message) : SgfProperty(SgfPropertyType.NodeAnnotation)
         {
             internal override T Accept<T>(ISgfPropertyVisitor<T> visitor) => visitor.Accept(this);
         }

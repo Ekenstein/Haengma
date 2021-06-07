@@ -1,4 +1,5 @@
-﻿using Haengma.Core.Sgf;
+﻿using Haengma.Core.Models;
+using Haengma.Core.Sgf;
 using Haengma.Core.Utils;
 using Haengma.GS.Hubs;
 using Haengma.GS.Models;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Haengma.Core.Models.TimeSettings;
 using static Haengma.Core.Sgf.SgfProperty;
 using static Haengma.Tests.RandomExtensions;
 
@@ -15,6 +17,8 @@ namespace Haengma.Tests
 {
     public static class Fixture
     {
+        public static string RandomIdString() => Guid.NewGuid().ToString();
+
         public static readonly IEqualityComparer<SgfProperty> PropertyComparer = EqualityComparer<SgfProperty>
             .Default
             .WithEquals(AreEquals);
@@ -99,12 +103,7 @@ namespace Haengma.Tests
             {
                 var other = _other as T;
                 if (other == null) return false;
-                var result = equals(other);
-                if (!result)
-                {
-                    var i = 0;
-                }
-                return result;
+                return equals(other);
             }
 
             public bool Accept(B b) => CheckEquality<B>(x => x.Move == b.Move);
@@ -148,7 +147,7 @@ namespace Haengma.Tests
 
             public bool Accept(RE rE) => CheckEquality<RE>(x => x.Result == rE.Result);
 
-            public bool Accept(Emote emote) => CheckEquality<Emote>(x =>
+            public bool Accept(EM emote) => CheckEquality<EM>(x =>
             {
                 return x.Color == emote.Color && x.Message == emote.Message;
             });
@@ -161,17 +160,17 @@ namespace Haengma.Tests
             Mock<IGameClient> gameClient, 
             JsonGameSettings gameSettings = null)
         {
-            await owner.CreateGameAsync(gameSettings ?? GameSettings());
+            await owner.CreateGameAsync(gameSettings ?? JsonGameSettings());
             return await gameClient.VerifyGameCreated(Times.Once());
         }
 
-        public static JsonTimeSettings TimeSettings(
+        public static JsonTimeSettings JsonTimeSettings(
             JsonTimeSettingType type = JsonTimeSettingType.ByoYomi,
             int mainTimeInSeconds = 60 * 10,
             int byoYomiPeriods = 5,
             int byoYomiSeconds = 30) => new(type, mainTimeInSeconds, byoYomiPeriods, byoYomiSeconds);
 
-        public static JsonGameSettings GameSettings(
+        public static JsonGameSettings JsonGameSettings(
             JsonTimeSettings timeSettings = null,
             int boardSize = 19,
             double komi = 6.5,
@@ -181,8 +180,36 @@ namespace Haengma.Tests
             boardSize,
             komi,
             handicap,
-            timeSettings ?? TimeSettings(),
+            timeSettings ?? JsonTimeSettings(),
             playerDecision
+        );
+
+        public static TimeSettings ByoYomi(
+            int mainTimeInSeconds = 600,
+            int byoYomiPeriods = 5,
+            int byoYomiSeconds = 30
+        ) => new ByoYomi(mainTimeInSeconds, byoYomiPeriods, byoYomiSeconds);
+
+        public static GameSettings GameSettings(
+            int boardSize = 19,
+            double komi = 6.5,
+            int handicap = 0,
+            TimeSettings timeSettings = null,
+            ColorDecision colorDecision = ColorDecision.Nigiri
+        ) => new(boardSize, komi, handicap, timeSettings ?? ByoYomi(), colorDecision);
+
+        public static Game Game(
+            GameId gameId = null,
+            UserId blackPlayerId = null,
+            UserId whitePlayerId = null,
+            string sgf = null,
+            GameSettings gameSettings = null
+        ) => new(
+            gameId ?? new(RandomIdString()),
+            blackPlayerId ?? new(RandomIdString()),
+            whitePlayerId ?? new(RandomIdString()),
+            sgf ?? string.Empty,
+            gameSettings ?? GameSettings()
         );
 
         public static IReadOnlyList<SgfGameTree> NextSgfCollection(
@@ -222,7 +249,7 @@ namespace Haengma.Tests
             rng => new WR(NextSimpleText(rng)),
             rng => new OT(NextSimpleText(rng)),
             rng => new RE(NextSimpleText(rng)), 
-            rng => new Emote(NextColor(rng), rng.Next(Enum.GetValues<SgfEmote>())),
+            rng => new EM(NextColor(rng), rng.Next(Enum.GetValues<SgfEmote>())),
             rng => new Unknown(
                 rng.NextString(UCLetters, minLength: 3), 
                 rng.NextCollection(NextText, minSize: 1, maxSize: 4).ToNonEmptyList()
@@ -245,7 +272,7 @@ namespace Haengma.Tests
             )
             .Let(x => new SgfSimpleText(x));
 
-        private static Point NextPoint(Random random) => new(random.Next(1, 52), random.Next(1, 52));
+        private static SgfPoint NextPoint(Random random) => new(random.Next(1, 52), random.Next(1, 52));
 
         private static Move NextMove(Random random)
         {

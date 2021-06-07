@@ -61,7 +61,7 @@ namespace Haengma.Core.Sgf
             .Select(x => EscapeChar(x, isComposed))
             .JoinToString("");
 
-        private static string ToSgf(this Point point)
+        private static string ToSgf(this SgfPoint point)
         {
             static char IntToChar(int n)
             {
@@ -157,7 +157,7 @@ namespace Haengma.Core.Sgf
 
             public string Accept(SgfProperty.RE rE) => ToSgf("RE", rE.Result.SimpleTextToSgf(false));
 
-            public string Accept(SgfProperty.Emote emote) => ToSgf("EM", (emote.Color, emote.Message).ToSgf(x => x.ToSgf(), x => ((int)x).ToString()).ToString());
+            public string Accept(SgfProperty.EM emote) => ToSgf("EM", (emote.Color, emote.Message).ToSgf(x => x.ToSgf(), x => ((int)x).ToString()).ToString());
         }
     }
 }

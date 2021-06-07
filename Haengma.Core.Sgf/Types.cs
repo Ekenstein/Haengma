@@ -12,7 +12,7 @@ namespace Haengma.Core.Sgf
 
     public enum SgfEmote { Greetings, Bye, Impressed, Thanks, Mistake }
 
-    public sealed record Point(int X, int Y);
+    public sealed record SgfPoint(int X, int Y);
 
     public class SgfText : IEquatable<SgfText?>
     {
@@ -131,14 +131,14 @@ namespace Haengma.Core.Sgf
         public bool IsPass => this is Pass;
     }
 
-    public record Stone(SgfColor Color, Point Point);
+    public record Stone(SgfColor Color, SgfPoint Point);
 
     internal static class MoveExtensions
     {
-        internal static Point? ToPoint(this Move move) => move switch
+        internal static SgfPoint? ToPoint(this Move move) => move switch
         {
             Move.Pass => null,
-            Move.Point p => new Point(p.X, p.Y),
+            Move.Point p => new SgfPoint(p.X, p.Y),
             _ => throw new ArgumentException("Invalid move")
         };
     }
@@ -150,6 +150,6 @@ namespace Haengma.Core.Sgf
 
     public sealed record SgfGameTree(IReadOnlyList<SgfNode> Sequence, IReadOnlyList<SgfGameTree> Trees)
     {
-        public static readonly SgfGameTree Empty = new(List.Empty<SgfNode>(), List.Empty<SgfGameTree>());
+        public static readonly SgfGameTree Empty = new(EmptyList<SgfNode>(), EmptyList<SgfGameTree>());
     }
 }

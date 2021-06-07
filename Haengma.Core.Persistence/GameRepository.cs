@@ -65,7 +65,11 @@ namespace Haengma.Core.Persistence
 
         public static async Task<Game> GetGameByIdAsync(this IReadOnlyTransaction transaction, GameId id)
         {
-            var game = await transaction.GameById(id).SingleOrDefaultAsync();
+            var game = await transaction.GameById(id).SingleOrDefaultAsync() ;
+            if (game == null)
+            {
+                throw new NoSuchEntityException(id);
+            }
 
             return game.ToServiceModel();
         }
@@ -74,7 +78,11 @@ namespace Haengma.Core.Persistence
 
         public static async Task UpdateSgfAsync(this ITransaction transaction, GameId id, string sgf)
         {
-            var game = await transaction.GameById(id).SingleOrDefaultAsync() ?? throw new NoSuchEntityException(id);
+            var game = await transaction.GameById(id).SingleOrDefaultAsync();
+            if (game == null)
+            {
+                throw new NoSuchEntityException(id);
+            }
 
             transaction.Update(game with
             {

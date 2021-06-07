@@ -163,7 +163,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var sgf = " (   \t;   AW\t\n   [  \taa  ]\n  )";
             var result = SgfReader.Parse(sgf);
-            AssertSingleSgfProperty<AW>(result, sgf, x => Equal(SetOf(new Point(1, 1)), x.Stones));
+            AssertSingleSgfProperty<AW>(result, sgf, x => Equal(SetOf(new SgfPoint(1, 1)), x.Stones));
         }
 
         [Theory]

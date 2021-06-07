@@ -73,7 +73,7 @@ namespace Haengma.Tests
             var handicap = Enumerable.Range(2, 8).ToArray();
             Assert.All(handicap, async x =>
             {
-                var gameSettings = Fixture.GameSettings(handicap: x);
+                var gameSettings = Fixture.JsonGameSettings(handicap: x);
 
                 var owner = await StartHubConnectionAsync();
                 var challenger = await StartHubConnectionAsync();
@@ -97,7 +97,7 @@ namespace Haengma.Tests
         [Fact]
         public async Task NonAssignedPlayerCanNotPlayTheNextMove()
         {
-            var gameSettings = Fixture.GameSettings(playerDecision: JsonPlayerDecision.OwnerTakesBlack);
+            var gameSettings = Fixture.JsonGameSettings(playerDecision: JsonPlayerDecision.OwnerTakesBlack);
 
             var owner = await StartHubConnectionAsync();
             var challenger = await StartHubConnectionAsync();
@@ -121,7 +121,7 @@ namespace Haengma.Tests
         {
             var owner = await StartHubConnectionAsync();
             var ownerClient = owner.CreateGameClient();
-            var gameId = await Fixture.CreateGameAsync(owner, ownerClient, Fixture.GameSettings(playerDecision: JsonPlayerDecision.OwnerTakesBlack));
+            var gameId = await Fixture.CreateGameAsync(owner, ownerClient, Fixture.JsonGameSettings(playerDecision: JsonPlayerDecision.OwnerTakesBlack));
 
             var challenger = await StartHubConnectionAsync();
             var challengerClient = challenger.CreateGameClient();
@@ -145,7 +145,7 @@ namespace Haengma.Tests
         {
             var owner = await StartHubConnectionAsync();
             var ownerClient = owner.CreateGameClient();
-            var gameId = await Fixture.CreateGameAsync(owner, ownerClient, Fixture.GameSettings(playerDecision: JsonPlayerDecision.OwnerTakesBlack));
+            var gameId = await Fixture.CreateGameAsync(owner, ownerClient, Fixture.JsonGameSettings(playerDecision: JsonPlayerDecision.OwnerTakesBlack));
             
             var challenger = await StartHubConnectionAsync();
             var challengerClient = challenger.CreateGameClient();
@@ -189,7 +189,7 @@ namespace Haengma.Tests
         [Fact]
         public async Task AddingAMoveTriggersABoardUpdate()
         {
-            var gameSettings = Fixture.GameSettings(playerDecision: JsonPlayerDecision.OwnerTakesBlack);
+            var gameSettings = Fixture.JsonGameSettings(playerDecision: JsonPlayerDecision.OwnerTakesBlack);
 
             var owner = await StartHubConnectionAsync();
             var challenger = await StartHubConnectionAsync();

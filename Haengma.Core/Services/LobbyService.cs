@@ -27,7 +27,7 @@ namespace Haengma.Core.Services
             var ownerId = context.Logics.Lobby.GetOwnerByGameId(gameId)
                 ?? throw new ArgumentException($"A game with the id {gameId} doesn't exist.");
 
-            await context.Transactions.WriteAsync(async tx =>
+            await context.Transactions.WriteAndReturnAsync(async tx =>
             {
                 await context.Logics.Lobby.StartGameAsync(tx, ownerId, challengerId);
                 return Unit.Value;

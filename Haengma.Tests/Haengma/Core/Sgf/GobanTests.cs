@@ -86,11 +86,11 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         [Fact]
         public void CapturingAStoneRemovesItFromTheBoard()
         {
-            static IReadOnlySet<Point> Ponnuki(int x, int y) => SetOf(
-                new Point(x - 1, y),
-                new Point(x + 1, y),
-                new Point(x, y - 1),
-                new Point(x, y + 1)
+            static IReadOnlySet<SgfPoint> Ponnuki(int x, int y) => SetOf(
+                new SgfPoint(x - 1, y),
+                new SgfPoint(x + 1, y),
+                new SgfPoint(x, y - 1),
+                new SgfPoint(x, y + 1)
             );
 
             var ponnuki = Ponnuki(4, 4);

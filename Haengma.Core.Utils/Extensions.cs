@@ -12,5 +12,13 @@ namespace Haengma.Core.Utils
             block(o);
             return o;
         });
+
+        public static U Use<T, U>(this T t, Func<T, U> block) where T : IDisposable
+        {
+            using (t)
+            {
+                return block(t);
+            }
+        }
     }
 }

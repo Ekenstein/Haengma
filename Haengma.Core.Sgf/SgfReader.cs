@@ -42,7 +42,7 @@ namespace Haengma.Core.Sgf
             .Assert(x => x.Count() == 1)
             .Select(x => x.Single());
 
-        private static Parser<char, Point> Point => Token(char.IsLetter)
+        private static Parser<char, SgfPoint> Point => Token(char.IsLetter)
             .Between(SkipWhitespaces)
             .Assert(x => x >= 'a' && x <= 'z' || x >= 'A' && x <= 'Z')
             .Select(c => {
@@ -56,7 +56,7 @@ namespace Haengma.Core.Sgf
                 }
             })
             .Repeat(2)
-            .Select(v => new Point(v.ElementAt(0), v.ElementAt(1)))
+            .Select(v => new SgfPoint(v.ElementAt(0), v.ElementAt(1)))
             .Labelled("Point");
 
         private static Parser<char, Move> Move => Try(Stone).Or(Pass);
@@ -119,7 +119,7 @@ namespace Haengma.Core.Sgf
             "BR" => PropertyValue(SimpleText(false)).Select<SgfProperty>(x => new BR(x)).Labelled("BR"),
             "WR" => PropertyValue(SimpleText(false)).Select<SgfProperty>(x => new WR(x)).Labelled("WR"),
             "PL" => PropertyValue(Color).Select<SgfProperty>(x => new PL(x)).Labelled("PL"),
-            "EM" => PropertyValue(Composed(Color, Int)).Select<SgfProperty>(x => new Emote(x.Item1, (SgfEmote)x.Item2)).Labelled("Emote"),
+            "EM" => PropertyValue(Composed(Color, Int)).Select<SgfProperty>(x => new EM(x.Item1, (SgfEmote)x.Item2)).Labelled("Emote"),
             "OT" => PropertyValue(SimpleText(false)).Select<SgfProperty>(x => new OT(x)).Labelled("OT"),
             _ => PropertyValues(Text(false)).Select<SgfProperty>(x => new Unknown(identifier, x.ToNonEmptyList()))
         };

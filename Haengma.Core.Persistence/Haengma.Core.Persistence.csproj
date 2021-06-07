@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Haengma.Core.Models\Haengma.Core.Models.csproj" />
+    <ProjectReference Include="..\Haengma.Core.Utils\Haengma.Core.Utils.csproj" />
   </ItemGroup>
 
 </Project>

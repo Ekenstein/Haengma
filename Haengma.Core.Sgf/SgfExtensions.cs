@@ -18,7 +18,7 @@ namespace Haengma.Core.Sgf
 
         public static SgfGameTree AppendNode(this SgfGameTree tree, SgfNode node) => tree with
         {
-            Sequence = tree.Sequence.Append(List.Of(node))
+            Sequence = tree.Sequence.Append(ListOf(node))
         };
 
         public static SgfNode? RootNode(this SgfGameTree tree) => tree.Sequence.Head();
@@ -74,7 +74,7 @@ namespace Haengma.Core.Sgf
 
             return tree with
             {
-                Sequence = List.Of(rootNode).Append(tree.Sequence.Tail().ToArray())
+                Sequence = ListOf(rootNode).Append(tree.Sequence.Tail().ToArray())
             };
         }
     }

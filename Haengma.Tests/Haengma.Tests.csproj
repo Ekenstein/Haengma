@@ -27,4 +27,8 @@
     <ProjectReference Include="..\Haengma.GS\Haengma.GS.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Haengma\Core\Services\" />
+  </ItemGroup>
+
 </Project>

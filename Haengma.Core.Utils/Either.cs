@@ -2,8 +2,8 @@
 {
     public abstract record Either<L, R>
     {
-        public sealed record Left(L Value) : Either<L, Nothing>();
-        public sealed record Right(R Value) : Either<Nothing, R>();
+        public sealed record Left(L Value) : Either<L, R>();
+        public sealed record Right(R Value) : Either<L, R>();
 
         public bool IsLeft => this switch
         {
@@ -28,5 +28,7 @@
             Right right => right.Value,
             _ => default
         };
+
+        public static implicit operator Either<L, R>(L left) => new Left(left);
     }
 }
