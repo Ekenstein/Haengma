@@ -61,7 +61,7 @@ namespace Haengma.Core.Sgf
         public static int? GetHandicap(this SgfGameTree tree) => tree.RootNode()?.FindProperty<HA>()?.Handicap;
         public static bool HasGameEnded(this SgfGameTree tree) => tree.RootNode()?.FindProperty<RE>() != null || tree.HasTwoConsecutivePasses();
         public static SgfGameTree SetTurn(this SgfGameTree tree, SgfColor color) => tree.AppendNode(new PL(color).AsNode());
-        public static SgfGameTree AddEmote(this SgfGameTree tree, SgfColor color, SgfEmote emote) => tree.AppendPropertyToLastNode(new EM(color, emote));
+        public static SgfGameTree AddEmote(this SgfGameTree tree, SgfColor color, SgfEmote emote) => tree.AddPropertyToLastNode(new EM(color, emote));
         public static bool HasTurn(this SgfGameTree tree, SgfColor color) => !tree.HasGameEnded() && tree
             .Sequence
             .SelectMany(x => x.Properties)
@@ -89,18 +89,13 @@ namespace Haengma.Core.Sgf
             .Where(x => x.IsPass())
             .Count() == 2;
 
-        public static SgfGameTree AddComment(this SgfGameTree tree, string comment)
+        public static SgfGameTree AddComment(this SgfGameTree tree, SgfText comment)
         {
-            C AddComment() => new(SgfText.FromString(comment));
-            C UpdateComment(C property) => property with
-            {
-                Comment = property.Comment.AppendLine(SgfText.FromString(comment))
-            };
-
-            return tree.AddOrUpdatePropertyOnLastNode(
-                UpdateComment,
-                AddComment
-            );
+            var property = tree.FindPropertyFromLastNode<C>()
+                ?.AppendComment(comment)
+                ?? new(comment);
+            
+            return tree.AddPropertyToLastNode(property);
         }
 
         public static SgfGameTree PlaceFixedHandicap(this SgfGameTree tree, int handicap, int boardSize)

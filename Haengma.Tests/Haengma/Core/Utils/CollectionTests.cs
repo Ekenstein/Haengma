@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Haengma.Core.Utils;
+using System;
 using System.Collections.Generic;
 using Xunit;
-using static Xunit.Assert;
 using static Haengma.Core.Utils.Collections;
-using Haengma.Core.Utils;
+using static Xunit.Assert;
 
 namespace Haengma.Tests.Haengma.Core.Utils
 {

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using Xunit;
 using static Haengma.Core.Sgf.SgfProperty;
 using static Haengma.Core.Utils.Collections;
-using static Xunit.Assert;
 using static Haengma.Tests.SgfAssert;
+using static Xunit.Assert;
 
 namespace Haengma.Tests.Haengma.Core.Sgf
 {

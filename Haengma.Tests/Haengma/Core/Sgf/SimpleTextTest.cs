@@ -1,12 +1,9 @@
 ﻿using Haengma.Core.Sgf;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
-using static Xunit.Assert;
 using static Haengma.Tests.RandomExtensions;
+using static Xunit.Assert;
 
 namespace Haengma.Tests.Haengma.Core.Sgf
 {

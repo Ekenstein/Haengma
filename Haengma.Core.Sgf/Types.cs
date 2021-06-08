@@ -1,9 +1,9 @@
 ﻿using Haengma.Core.Utils;
 using System;
 using System.Collections.Generic;
-using static Haengma.Core.Utils.Collections;
-using static Haengma.Core.Utils.Assertion;
 using System.Linq;
+using static Haengma.Core.Utils.Assertion;
+using static Haengma.Core.Utils.Collections;
 
 namespace Haengma.Core.Sgf
 {

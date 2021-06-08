@@ -33,7 +33,7 @@ namespace Haengma.Tests
             assert?.Invoke(result.Value);
         }
 
-        public static void AssertSingleNode(
+        public static void SingleNode(
             SgfGameTree tree,
             Action<SgfNode> assert = null
         )
@@ -65,7 +65,7 @@ namespace Haengma.Tests
         {
             ParseSuccess(parseResult, sgf, trees => {
                 SingleSgfTree(trees, tree => {
-                    AssertSingleNode(tree, node =>
+                    SingleNode(tree, node =>
                     {
                         Single(node.Properties);
                         var property = node.FindProperty<T>();

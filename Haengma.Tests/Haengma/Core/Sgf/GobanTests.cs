@@ -1,5 +1,5 @@
 ﻿using Haengma.Core.Sgf;
-using Haengma.Core.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -17,6 +17,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         {
             var tree = SgfGameTree.Empty.SetBoardSize(19);
             Equal(19, tree.GetBoardSize());
+            ContainsSingleProperty<SZ>(tree, x => Equal(19, x.Size));
         }
 
         [Theory]
@@ -157,6 +158,49 @@ namespace Haengma.Tests.Haengma.Core.Sgf
 
             var whiteCaptures = tree.SetTurn(SgfColor.White).PlayMove(SgfColor.White, new Move.Point(3, 19), 19).GetBoard(19);
             Equal(4, whiteCaptures.Captures[SgfColor.White]);
+        }
+
+        [Fact]
+        public void AddComment_NoPreviousComment_Comment()
+        {
+            var comment = new SgfText("apa");
+            var tree = SgfGameTree.Empty.AddComment(comment);
+            ContainsSingleProperty<C>(tree, x => Equal(comment, x.Comment));
+        }
+
+        [Fact]
+        public void AddComment_PreviousComment_CommentAppendedToExistingComment()
+        {
+            var existingComment = new SgfText("apa");
+            var newComment = new SgfText("bepa");
+
+            var tree = SgfGameTree.Empty.AddComment(existingComment).AddComment(newComment);
+
+            ContainsSingleProperty<C>(tree, x =>
+            {
+                var lines = x.Comment.Text.Split(Environment.NewLine);
+                Equal(2, lines.Length);
+                Equal("apa", lines[0]);
+                Equal("bepa", lines[1]);
+            });
+        }
+
+        [Fact]
+        public void AddComment_AddedToLastNode()
+        {
+            var move = new Move.Point(3, 3);
+            var comment = new SgfText("wow");
+            var tree = SgfGameTree.Empty.PlayMove(SgfColor.Black, move, 19).AddComment(comment);
+            SingleNode(tree, x =>
+            {
+                Equal(2, x.Properties.Count);
+                var moveProperty = x.FindProperty<B>();
+                NotNull(moveProperty);
+                Equal(move, moveProperty.Move);
+
+                var commentProperty = x.FindProperty<C>();
+                Equal(comment, commentProperty.Comment);
+            });
         }
     }
 }

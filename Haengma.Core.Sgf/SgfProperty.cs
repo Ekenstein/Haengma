@@ -1,6 +1,5 @@
 ﻿using Haengma.Core.Utils;
 using Pidgin;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Haengma.Tests")]
@@ -116,5 +115,13 @@ namespace Haengma.Core.Sgf
 
         internal abstract T Accept<T>(ISgfPropertyVisitor<T> visitor);
         internal void Accept(ISgfPropertyVisitor<Unit> visitor) => Accept<Unit>(visitor);
+    }
+
+    public static class SgfPropertyExtensions 
+    {
+        public static SgfProperty.C AppendComment(this SgfProperty.C property, SgfText comment) => property with
+        {
+            Comment = property.Comment.AppendLine(comment)
+        };
     }
 }

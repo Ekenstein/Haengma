@@ -121,7 +121,7 @@ namespace Haengma.Core.Logics.Games
         {
             var (tree, _) = await GetSgfTreeAsync(transaction, gameId);
 
-            await UpdateSgfAsync(transaction, tree.AddComment(comment), gameId);
+            await UpdateSgfAsync(transaction, tree.AddComment(SgfText.FromString(comment)), gameId);
             await Notifier.CommentAddedAsync(gameId, comment);
         }
 

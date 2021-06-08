@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using static Haengma.Core.Sgf.SgfProperty;
+using static Haengma.Core.Utils.Collections;
 using static Pidgin.Parser;
 using static Pidgin.Parser<char>;
-using static Haengma.Core.Utils.Collections;
 
 namespace Haengma.Core.Sgf
 {

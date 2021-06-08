@@ -34,29 +34,9 @@ namespace Haengma.Core.Sgf
             _ => false
         };
 
-        /// <summary>
-        /// Appends the given property to the last node of the tree. If there are no nodes in the
-        /// tree, a new node containing the given property will be added to the tree.
-        /// </summary>
-        public static SgfGameTree AppendPropertyToLastNode<T>(this SgfGameTree tree, T property) where T : SgfProperty
-        {
-            var lastNode = tree.LastNode()?.AddProperty(property) ?? property.AsNode();
-            return tree with
-            {
-                Sequence = tree.Sequence.Take(tree.Sequence.Count - 1).Append(lastNode).ToArray()
-            };
-        }
-
         public static T? FindPropertyFromLastNode<T>(this SgfGameTree tree) where T : SgfProperty => tree
             .LastNode()
             ?.FindProperty<T>();
-
-        public static SgfGameTree AddOrUpdatePropertyOnLastNode<T>(this SgfGameTree tree, Func<T, T> onUpdate, Func<T> onAdd) where T : SgfProperty
-        {
-            var property = tree.FindPropertyFromLastNode<T>()?.Let(onUpdate) ?? onAdd();
-
-            return tree.AppendPropertyToLastNode(property);
-        }
 
         public static SgfNode AddProperty<T>(this SgfNode node, T property) where T : SgfProperty
         {
@@ -65,6 +45,19 @@ namespace Haengma.Core.Sgf
             return node with
             {
                 Properties = properties.Merge(SetOf<SgfProperty>(property))
+            };
+        }
+
+        /// <summary>
+        /// Appends the given property to the last node of the tree. If there are no nodes in the
+        /// tree, a new node containing the given property will be added to the tree.
+        /// </summary>
+        public static SgfGameTree AddPropertyToLastNode<T>(this SgfGameTree tree, T property) where T : SgfProperty
+        {
+            var lastNode = tree.LastNode()?.AddProperty(property) ?? property.AsNode();
+            return tree with
+            {
+                Sequence = tree.Sequence.Take(tree.Sequence.Count - 1).Append(lastNode).ToArray()
             };
         }
 

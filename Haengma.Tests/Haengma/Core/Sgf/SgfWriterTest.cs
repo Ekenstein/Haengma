@@ -11,7 +11,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         [Fact]
         public void SimpleText_BackSlash_Escaped()
         {
-            var tree = SgfGameTree.Empty.AppendPropertyToLastNode(new PB(new SgfSimpleText("\\")));
+            var tree = SgfGameTree.Empty.AddPropertyToLastNode(new PB(new SgfSimpleText("\\")));
             var sgf = SgfWriter.ToSgf(tree);
             Equal(@"(;PB[\\])", sgf);
 
@@ -23,7 +23,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         [Fact]
         public void Unknown_Values_EscapeChars()
         {
-            var tree = SgfGameTree.Empty.AppendPropertyToLastNode(
+            var tree = SgfGameTree.Empty.AddPropertyToLastNode(
                 new Unknown("A", NonEmptyListOf(new SgfText(@"\")))
             );
 
@@ -34,7 +34,7 @@ namespace Haengma.Tests.Haengma.Core.Sgf
         [Fact]
         public void Unknown_Values_ComposedChar_TranslatedWithoutEscape()
         {
-            var tree = SgfGameTree.Empty.AppendPropertyToLastNode(
+            var tree = SgfGameTree.Empty.AddPropertyToLastNode(
                 new Unknown("A", NonEmptyListOf(new SgfText(":")))
             );
 
