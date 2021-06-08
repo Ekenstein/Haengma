@@ -2,12 +2,12 @@
 using Haengma.Core.Persistence;
 using Haengma.Core.Sgf;
 using Haengma.Core.Utils;
-using static Haengma.Core.Utils.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static Haengma.Core.Utils.Collections;
 
 namespace Haengma.Core.Logics.Games
 {
@@ -130,7 +130,7 @@ namespace Haengma.Core.Logics.Games
             var gameState = GetGameState(gameId);
             var color = gameState.GetPlayerColor(userId);
             var (tree, _) = await GetSgfTreeAsync(transaction, gameId);
-            
+
             var newTree = tree.AddEmote(color.ToSgfModel(), emote.ToSgfModel());
 
             await UpdateSgfAsync(transaction, newTree, gameId);

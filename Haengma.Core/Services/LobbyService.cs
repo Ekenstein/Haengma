@@ -1,5 +1,4 @@
 ﻿using Haengma.Core.Models;
-using Pidgin;
 using System;
 using System.Threading.Tasks;
 
@@ -27,11 +26,7 @@ namespace Haengma.Core.Services
             var ownerId = context.Logics.Lobby.GetOwnerByGameId(gameId)
                 ?? throw new ArgumentException($"A game with the id {gameId} doesn't exist.");
 
-            await context.Transactions.WriteAndReturnAsync(async tx =>
-            {
-                await context.Logics.Lobby.StartGameAsync(tx, ownerId, challengerId);
-                return Unit.Value;
-            });
+            await context.Transactions.WriteAsync(tx => context.Logics.Lobby.StartGameAsync(tx, ownerId, challengerId));
         }
     }
 }
