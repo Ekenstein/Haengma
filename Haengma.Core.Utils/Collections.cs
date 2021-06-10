@@ -105,6 +105,16 @@ namespace Haengma.Core.Utils
         public static string JoinToString<T>(this IEnumerable<T> ts, string separator) => ts
             .JoinToString(separator, x => x?.ToString() ?? string.Empty);
 
+        public static IReadOnlyDictionary<K, V> ToMap<K, V>(this IEnumerable<(K, V)> ts) where K : notnull => MapOf(ts.ToArray());
+
+        public static IReadOnlyDictionary<K, V> Associate<T, K, V>(this IEnumerable<T> ts, Func<T, (K, V)> block) where K : notnull => ts
+            .Select(block)
+            .ToMap();
+
+        public static IReadOnlyDictionary<K, T> AssociateBy<K, T>(this IEnumerable<T> ts, Func<T, (K, T)> block) where K : notnull => ts
+            .Select(block)
+            .ToMap();
+
         private class ReadOnlySet<T> : IReadOnlySet<T>
         {
             private readonly ISet<T> _set;
